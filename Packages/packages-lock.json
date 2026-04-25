@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.mineking702.curseddepths.core": {
+      "version": "https://github.com/MineKing702/CursedDepths.core.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "4b36ea6ffc4012623e654a8211747b8a1deafc19"
+    },
     "com.unity.2d.animation": {
       "version": "10.1.4",
       "depth": 1,
