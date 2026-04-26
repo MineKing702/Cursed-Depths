@@ -25,6 +25,8 @@ public class HomeRunner : MonoBehaviour
         if (FadeInCover == null)
             yield break;
 
+        FadeInCover.gameObject.SetActive(true);
+
         yield return new WaitForSeconds(fadeInDelay);
 
         float startAlpha = FadeInCover.color.a;
