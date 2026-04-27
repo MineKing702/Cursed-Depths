@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      CD Player Character_0: 908230778999967009
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
