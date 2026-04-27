@@ -1,12 +1,10 @@
 using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
+using CursedDepths.Core.Events;
 
 public class HomeRunner : MonoBehaviour
 {
-
     private void Start()
     {
-
+        GameEvents.RequestGameStartup();
     }
 }
