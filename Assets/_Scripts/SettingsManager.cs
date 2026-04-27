@@ -1,10 +1,15 @@
 using UnityEngine;
 using CursedDepths.Core.Events;
 using CursedDepths.Core.Settings;
+using UnityEngine.UI;
 
 public class SettingsManager : MonoBehaviour
 {
     private PlayerSettings playerSettings;
+
+    public Slider MasterVolSlider;
+    public Slider MusicVolSlider;
+    public Slider EffectsVolSlider;
 
     private void OnEnable()
     {
@@ -35,6 +40,22 @@ public class SettingsManager : MonoBehaviour
 
         PlayerPrefs.Save();
 
-        GameEvents.LoadPlayerSettings(settings);
+       GameEvents.LoadPlayerSettings(settings);
+    }
+
+    public void UpdateMasterVol()
+    {
+        playerSettings.MasterVolume = MasterVolSlider.value;
+        SaveSettings(playerSettings);
+    }
+    public void UpdateMusicVol()
+    {
+        playerSettings.MusicVolume = MusicVolSlider.value;
+        SaveSettings(playerSettings);
+    }
+    public void UpdateEffectVol()
+    {
+        playerSettings.SoundEffects = EffectsVolSlider.value;
+        SaveSettings(playerSettings);
     }
 }
