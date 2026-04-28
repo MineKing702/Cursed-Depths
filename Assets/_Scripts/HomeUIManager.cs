@@ -20,7 +20,9 @@ public class HomeUIManager : MonoBehaviour
     private void OnEnable()
     {
         GameEvents.GameStartupRequested += FadeInHomescreen;
-        GameEvents.PlayerSettingsLoaded += UpdateVolumeSliders;
+        GameEvents.SettingsLoaded += UpdateVolumeSliders;
+        GameEvents.OpenSettingsMenu += OpenSettings;
+        GameEvents.ClosedSettingsMenu += CloseSettings;
     }
 
     private void OnDisable()
@@ -71,11 +73,17 @@ public class HomeUIManager : MonoBehaviour
 
         SettingsUIParentAnim.Play("UiSlideFadeIn");
     }
-
-    public void UpdateVolumeSliders(PlayerSettings settings)
+    public void CloseSettings(ClosedSettingsMenuEventArgs arg)
     {
-        MasterVol.value = settings.MasterVolume / 100;
-        MusicVol.value = settings.MusicVolume / 100;
-        EffectsVol.value = settings.SoundEffects / 100;
+        SettingsUIParentAnim.Play("UiSlideFadeOut");
+
+        HomeUIParentAnim.Play("UiSlideFadeIn");
+    }
+
+    public void UpdateVolumeSliders(SettingsLoadedEventArgs arg)
+    {
+        MasterVol.value = arg.playerSettings.MasterVolume;
+        MusicVol.value = arg.playerSettings.MusicVolume;
+        EffectsVol.value = arg.playerSettings.SoundEffects;
     }
 }

@@ -7,4 +7,13 @@ public class HomeRunner : MonoBehaviour
     {
         GameEvents.RequestGameStartup();
     }
+
+    public void OpenSettings()
+    {
+        GameEvents.OpenSettings();
+    }
+    public void CloseSettings()
+    {
+        GameEvents.CloseSettingsMenu(new ClosedSettingsMenuEventArgs(FindObjectOfType<SettingsManager>().playerSettings));
+    }
 }

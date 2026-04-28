@@ -9,19 +9,19 @@ public class AudioManager : MonoBehaviour
 
     private void OnEnable()
     {
-        GameEvents.PlayerSettingsLoaded += ApplySettings;
+        GameEvents.SettingsLoaded += ApplySettings;
     }
 
     private void OnDisable()
     {
-        GameEvents.PlayerSettingsLoaded -= ApplySettings;
+        GameEvents.SettingsLoaded -= ApplySettings;
     }
 
-    private void ApplySettings(PlayerSettings settings)
+    private void ApplySettings(SettingsLoadedEventArgs arg)
     {
-        float master = settings.MasterVolume / 100f;
-        float music = settings.MusicVolume / 100f;
-        float sfx = settings.SoundEffects / 100f;
+        float master = arg.playerSettings.MasterVolume / 100f;
+        float music = arg.playerSettings.MusicVolume / 100f;
+        float sfx = arg.playerSettings.SoundEffects / 100f;
 
         if (MusicSource != null)
             MusicSource.volume = master * music;
