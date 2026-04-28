@@ -19,6 +19,7 @@ public class SettingsManager : MonoBehaviour
         GameEvents.OpenSettingsMenu += LoadSettings;
         GameEvents.OpenSettingsMenu += UpdateSliders;
         GameEvents.ClosedSettingsMenu += SaveSettings;
+        GameEvents.SettingsSaved += SaveSettings;
     }
 
     private void OnDisable()
@@ -28,6 +29,7 @@ public class SettingsManager : MonoBehaviour
         GameEvents.OpenSettingsMenu -= LoadSettings;
         GameEvents.OpenSettingsMenu -= UpdateSliders;
         GameEvents.ClosedSettingsMenu -= SaveSettings;
+        GameEvents.SettingsSaved -= SaveSettings;
     }
 
     private void LoadSettings()
@@ -48,6 +50,14 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.Save();
 
         // Debug.Log($"Saved Settings: MasterVol: {PlayerPrefs.GetFloat("MasterVolume", 100f)}, MusicVol{PlayerPrefs.GetFloat("MusicVolume", 100f)}, EffectVol{PlayerPrefs.GetFloat("SoundEffectsVolume", 100f)}");
+    }
+    private void SaveSettings(SettingsSavedEventArgs arg)
+    {
+        PlayerPrefs.SetFloat("MasterVolume", arg.playerSettings.MasterVolume);
+        PlayerPrefs.SetFloat("MusicVolume", arg.playerSettings.MusicVolume);
+        PlayerPrefs.SetFloat("SoundEffectsVolume", arg.playerSettings.SoundEffects);
+
+        PlayerPrefs.Save();
     }
     void SaveSettings(PlayerSettings settings)
     {
@@ -70,16 +80,16 @@ public class SettingsManager : MonoBehaviour
     public void UpdateMasterVol()
     {
         playerSettings.MasterVolume = MasterVolSlider.value;
-        SaveSettings(playerSettings);
+        GameEvents.SaveSettings(new SettingsSavedEventArgs(playerSettings));
     }
     public void UpdateMusicVol()
     {
         playerSettings.MusicVolume = MusicVolSlider.value;
-        SaveSettings(playerSettings);
+        GameEvents.SaveSettings(new SettingsSavedEventArgs(playerSettings));
     }
     public void UpdateEffectVol()
     {
         playerSettings.SoundEffects = EffectsVolSlider.value;
-        SaveSettings(playerSettings);
+        GameEvents.SaveSettings(new SettingsSavedEventArgs(playerSettings));
     }
 }
