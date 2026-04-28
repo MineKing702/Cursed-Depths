@@ -2,6 +2,7 @@ using UnityEngine;
 using CursedDepths.Core.Events;
 using CursedDepths.Core.Settings;
 using UnityEngine.UI;
+using System;
 
 public class SettingsManager : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class SettingsManager : MonoBehaviour
     private void OnEnable()
     {
         GameEvents.GameStartupRequested += LoadSettings;
+        GameEvents.GameStartupRequested += UpdateSliders;
         GameEvents.OpenSettingsMenu += LoadSettings;
         GameEvents.OpenSettingsMenu += UpdateSliders;
         GameEvents.ClosedSettingsMenu += SaveSettings;
@@ -22,6 +24,10 @@ public class SettingsManager : MonoBehaviour
     private void OnDisable()
     {
         GameEvents.GameStartupRequested -= LoadSettings;
+        GameEvents.GameStartupRequested -= UpdateSliders;
+        GameEvents.OpenSettingsMenu -= LoadSettings;
+        GameEvents.OpenSettingsMenu -= UpdateSliders;
+        GameEvents.ClosedSettingsMenu -= SaveSettings;
     }
 
     private void LoadSettings()
@@ -40,6 +46,8 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.SetFloat("SoundEffectsVolume", arg.playerSettings.SoundEffects);
 
         PlayerPrefs.Save();
+
+        // Debug.Log($"Saved Settings: MasterVol: {PlayerPrefs.GetFloat("MasterVolume", 100f)}, MusicVol{PlayerPrefs.GetFloat("MusicVolume", 100f)}, EffectVol{PlayerPrefs.GetFloat("SoundEffectsVolume", 100f)}");
     }
     void SaveSettings(PlayerSettings settings)
     {
@@ -48,13 +56,15 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.SetFloat("SoundEffectsVolume", settings.SoundEffects);
 
         PlayerPrefs.Save();
+
+        // Debug.Log($"Saved Settings: MasterVol: {PlayerPrefs.GetFloat("MasterVolume", 100f)}, MusicVol{PlayerPrefs.GetFloat("MusicVolume", 100f)}, EffectVol{PlayerPrefs.GetFloat("SoundEffectsVolume", 100f)}");
     }
 
-    void UpdateSliders()
+    private void UpdateSliders()
     {
-        MasterVolSlider.value = playerSettings.MasterVolume / 100;
-        MusicVolSlider.value = playerSettings.MusicVolume / 100;
-        EffectsVolSlider.value = playerSettings.SoundEffects / 100;
+        MasterVolSlider.SetValueWithoutNotify(playerSettings.MasterVolume);
+        MusicVolSlider.SetValueWithoutNotify(playerSettings.MusicVolume);
+        EffectsVolSlider.SetValueWithoutNotify(playerSettings.SoundEffects);
     }
 
     public void UpdateMasterVol()
