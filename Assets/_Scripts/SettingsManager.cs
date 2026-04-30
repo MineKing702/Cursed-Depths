@@ -26,7 +26,7 @@ public class SettingsManager : MonoBehaviour
     private void LoadAndBroadcastSettings()
     {
         LoadSettings();
-        GameEvents.LoadSettings(new SettingsLoadedEventArgs(playerSettings));
+        GameEvents.LoadedSettings(new SettingsLoadedEventArgs(playerSettings));
     }
 
     private void LoadSettings()
