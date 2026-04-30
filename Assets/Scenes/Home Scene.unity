@@ -638,8 +638,8 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1372335197}
-        m_TargetAssemblyTypeName: SettingsManager, Assembly-CSharp
+      - m_Target: {fileID: 1144636800}
+        m_TargetAssemblyTypeName: HomeUIManager, Assembly-CSharp
         m_MethodName: UpdateMasterVol
         m_Mode: 1
         m_Arguments:
@@ -1067,7 +1067,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 437579559}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1144636800}
+        m_TargetAssemblyTypeName: HomeUIManager, Assembly-CSharp
+        m_MethodName: RebindJump
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &437579559
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1259,7 +1271,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &452544401
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1312,7 +1324,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 452544400}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -1720,7 +1732,7 @@ RectTransform:
   m_Father: {fileID: 1737632619}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1878,8 +1890,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 101710664}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2147,8 +2159,8 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1372335197}
-        m_TargetAssemblyTypeName: SettingsManager, Assembly-CSharp
+      - m_Target: {fileID: 1144636800}
+        m_TargetAssemblyTypeName: HomeUIManager, Assembly-CSharp
         m_MethodName: UpdateMusicVol
         m_Mode: 1
         m_Arguments:
@@ -2916,7 +2928,7 @@ RectTransform:
   m_Father: {fileID: 400579779}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -3206,6 +3218,14 @@ MonoBehaviour:
   MasterVol: {fileID: 103491820}
   MusicVol: {fileID: 694981281}
   EffectsVol: {fileID: 1696113938}
+  WalkLeftButton: {fileID: 1633692561}
+  WalkRightButton: {fileID: 1785870947}
+  JumpButton: {fileID: 437579558}
+  AttackButton: {fileID: 2061757483}
+  WalkLeftKeyTxt: {fileID: 440052637}
+  WalkRightKeyTxt: {fileID: 1461883504}
+  JumpKeyTxt: {fileID: 2138293833}
+  AttackKeyTxt: {fileID: 1564110557}
 --- !u!4 &1144636801
 Transform:
   m_ObjectHideFlags: 0
@@ -3238,7 +3258,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!95 &1198221646
 Animator:
   serializedVersion: 7
@@ -3736,13 +3756,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2069a113ffaf8942a282a8bbc85c3a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MasterVolSlider: {fileID: 103491820}
-  MusicVolSlider: {fileID: 694981281}
-  EffectsVolSlider: {fileID: 1696113938}
-  WalkLeftKeyTxt: {fileID: 440052637}
-  WalkRightKeyTxt: {fileID: 1461883504}
-  JumpKeyTxt: {fileID: 2138293833}
-  AttackKeyTxt: {fileID: 1564110557}
 --- !u!1 &1421755966
 GameObject:
   m_ObjectHideFlags: 0
@@ -3850,8 +3863,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 893047487}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -3927,9 +3940,9 @@ RectTransform:
   - {fileID: 1635924825}
   m_Father: {fileID: 1909054359}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 223.1, y: -183.09692}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 446.2, y: 97}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1461415615
@@ -4474,9 +4487,9 @@ RectTransform:
   - {fileID: 472520451}
   m_Father: {fileID: 1909054359}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 223.1, y: -48.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 446.2, y: 97}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1545395738
@@ -4933,7 +4946,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1633692562}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1144636800}
+        m_TargetAssemblyTypeName: HomeUIManager, Assembly-CSharp
+        m_MethodName: RebindWalkLeft
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1633692562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5273,8 +5298,8 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1372335197}
-        m_TargetAssemblyTypeName: SettingsManager, Assembly-CSharp
+      - m_Target: {fileID: 1144636800}
+        m_TargetAssemblyTypeName: HomeUIManager, Assembly-CSharp
         m_MethodName: UpdateEffectVol
         m_Mode: 1
         m_Arguments:
@@ -5319,9 +5344,9 @@ RectTransform:
   - {fileID: 1842263263}
   m_Father: {fileID: 1909054359}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 223.1, y: -452.29077}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 446.2, y: 97}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1700425381
@@ -5605,7 +5630,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1785870948}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1144636800}
+        m_TargetAssemblyTypeName: HomeUIManager, Assembly-CSharp
+        m_MethodName: RebindWalkRight
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1785870948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6232,9 +6269,9 @@ RectTransform:
   - {fileID: 654228443}
   m_Father: {fileID: 1909054359}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 223.1, y: -317.69385}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 446.2, y: 97}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2045909246
@@ -6351,8 +6388,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 937210737}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -6551,7 +6588,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2061757484}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1144636800}
+        m_TargetAssemblyTypeName: HomeUIManager, Assembly-CSharp
+        m_MethodName: RebindAttack
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2061757484
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7041,7 +7090,7 @@ RectTransform:
   m_Father: {fileID: 156481531}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}

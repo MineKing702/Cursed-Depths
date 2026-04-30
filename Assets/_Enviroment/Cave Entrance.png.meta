@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 340354765775f6745a961087b9a9d6b1
+guid: eb13adffbba29fe409e2bfb2407cc5bc
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 908230778999967009
-    second: CD Player Character_0
+      213: 485322445146987175
+    second: ChatGPT Image Apr 30, 2026, 11_53_27 AM_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,12 +100,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: CD Player Character_0
+      name: ChatGPT Image Apr 30, 2026, 11_53_27 AM_0
       rect:
         serializedVersion: 2
         x: 11
         y: 0
-        width: 1502
+        width: 1403
         height: 1024
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 12d8e5cd41faa9c00800000000000000
-      internalID: 908230778999967009
+      spriteID: 7aa928841363cb600800000000000000
+      internalID: 485322445146987175
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      CD Player Character_0: 908230778999967009
+      ChatGPT Image Apr 30, 2026, 11_53_27 AM_0: 485322445146987175
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

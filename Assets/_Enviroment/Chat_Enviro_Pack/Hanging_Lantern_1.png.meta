@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 340354765775f6745a961087b9a9d6b1
+guid: 35e3cacf6935a3146b75ed9799e1d0d9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 908230778999967009
-    second: CD Player Character_0
+      213: 3653707878578642800
+    second: Hanging_Lantern_1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: CD Player Character_0
+      name: Hanging_Lantern_1_0
       rect:
         serializedVersion: 2
-        x: 11
+        x: 0
         y: 0
-        width: 1502
-        height: 1024
+        width: 63
+        height: 168
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 12d8e5cd41faa9c00800000000000000
-      internalID: 908230778999967009
+      spriteID: 07fd9b715f394b230800000000000000
+      internalID: 3653707878578642800
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      CD Player Character_0: 908230778999967009
+      Hanging_Lantern_1_0: 3653707878578642800
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

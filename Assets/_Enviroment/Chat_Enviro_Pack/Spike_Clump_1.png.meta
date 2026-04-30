@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 340354765775f6745a961087b9a9d6b1
+guid: dd4733781ce43b6459957038baaf97f1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 908230778999967009
-    second: CD Player Character_0
+      213: -1145917816075094147
+    second: Spike_Clump_1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: CD Player Character_0
+      name: Spike_Clump_1_0
       rect:
         serializedVersion: 2
-        x: 11
+        x: 0
         y: 0
-        width: 1502
-        height: 1024
+        width: 198
+        height: 207
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 12d8e5cd41faa9c00800000000000000
-      internalID: 908230778999967009
+      spriteID: d777d0f41d1e810f0800000000000000
+      internalID: -1145917816075094147
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      CD Player Character_0: 908230778999967009
+      Spike_Clump_1_0: -1145917816075094147
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 340354765775f6745a961087b9a9d6b1
+guid: e4381ae479f40fc4f933b7e7d3636cee
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 908230778999967009
-    second: CD Player Character_0
+      213: 129210093668559618
+    second: Crystal_Spike_3_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: CD Player Character_0
+      name: Crystal_Spike_3_0
       rect:
         serializedVersion: 2
-        x: 11
+        x: 0
         y: 0
-        width: 1502
-        height: 1024
+        width: 138
+        height: 127
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 12d8e5cd41faa9c00800000000000000
-      internalID: 908230778999967009
+      spriteID: 20b628645eb0bc100800000000000000
+      internalID: 129210093668559618
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      CD Player Character_0: 908230778999967009
+      Crystal_Spike_3_0: 129210093668559618
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
