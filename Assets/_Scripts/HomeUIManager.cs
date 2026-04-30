@@ -69,15 +69,36 @@ public class HomeUIManager : MonoBehaviour
 
     public void OpenSettings()
     {
+        StartCoroutine(OpenSettingsMenu());
+    }
+    IEnumerator OpenSettingsMenu()
+    {
+        SettingsUIParentAnim.gameObject.SetActive(true);
+
         HomeUIParentAnim.Play("UiSlideFadeOut");
 
         SettingsUIParentAnim.Play("UiSlideFadeIn");
+
+        yield return new WaitForSeconds(.5f);
+
+        HomeUIParentAnim.gameObject.SetActive(false);
     }
+
     public void CloseSettings(ClosedSettingsMenuEventArgs arg)
     {
+        StartCoroutine(CloseSettingsMenu());
+    }
+    IEnumerator CloseSettingsMenu()
+    {
+        HomeUIParentAnim.gameObject.SetActive(true);
+
         SettingsUIParentAnim.Play("UiSlideFadeOut");
 
         HomeUIParentAnim.Play("UiSlideFadeIn");
+
+        yield return new WaitForSeconds(.2f);
+
+        SettingsUIParentAnim.gameObject.SetActive(false);
     }
 
     public void UpdateVolumeSliders(SettingsLoadedEventArgs arg)
