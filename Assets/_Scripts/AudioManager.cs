@@ -21,21 +21,19 @@ public class AudioManager : MonoBehaviour
 
     private void ApplySettings(SettingsLoadedEventArgs arg)
     {
-        float master = arg.playerSettings.MasterVolume / 100f;
-        float music = arg.playerSettings.MusicVolume / 100f;
-        float sfx = arg.playerSettings.SoundEffects / 100f;
-
-        if (MusicSource != null)
-            MusicSource.volume = master * music;
-
-        if (SoundEffectsSource != null)
-            SoundEffectsSource.volume = master * sfx;
+        ApplyVolumes(arg.playerSettings);
     }
+
     private void ApplySettings(SettingsSavedEventArgs arg)
     {
-        float master = arg.playerSettings.MasterVolume / 100f;
-        float music = arg.playerSettings.MusicVolume / 100f;
-        float sfx = arg.playerSettings.SoundEffects / 100f;
+        ApplyVolumes(arg.playerSettings);
+    }
+
+    private void ApplyVolumes(PlayerSettings settings)
+    {
+        float master = settings.MasterVolume / 100f;
+        float music = settings.MusicVolume / 100f;
+        float sfx = settings.SoundEffects / 100f;
 
         if (MusicSource != null)
             MusicSource.volume = master * music;
