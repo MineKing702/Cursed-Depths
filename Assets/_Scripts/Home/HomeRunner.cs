@@ -3,6 +3,9 @@ using CursedDepths.Core.Events;
 using CursedDepths.Core.Settings;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Coordinates Home scene actions and scene transitions.
+/// </summary>
 public class HomeRunner : MonoBehaviour
 {
     private PlayerSettings currentSettings;
@@ -24,11 +27,17 @@ public class HomeRunner : MonoBehaviour
         GameEvents.RequestGameStartup();
     }
 
+    /// <summary>
+    /// Requests opening the settings menu.
+    /// </summary>
     public void OpenSettings()
     {
         GameEvents.OpenSettings();
     }
 
+    /// <summary>
+    /// Requests closing the settings menu using currently loaded settings.
+    /// </summary>
     public void CloseSettings()
     {
         if (currentSettings == null)
@@ -37,6 +46,9 @@ public class HomeRunner : MonoBehaviour
         GameEvents.CloseSettingsMenu(new ClosedSettingsMenuEventArgs(currentSettings));
     }
 
+    /// <summary>
+    /// Closes the application or exits play mode in the editor.
+    /// </summary>
     public void CloseGame()
     {
 #if UNITY_EDITOR
@@ -56,6 +68,9 @@ public class HomeRunner : MonoBehaviour
         currentSettings = arg.playerSettings;
     }
 
+    /// <summary>
+    /// Loads the main gameplay scene.
+    /// </summary>
     public void StartGame()
     {
         SceneManager.LoadScene("Starting Area");

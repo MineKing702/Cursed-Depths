@@ -2,6 +2,9 @@ using UnityEngine;
 using CursedDepths.Core.Events;
 using CursedDepths.Core.Settings;
 
+/// <summary>
+/// Applies audio settings to music and sound effect sources.
+/// </summary>
 public class AudioManager : MonoBehaviour
 {
     public AudioSource MusicSource;
