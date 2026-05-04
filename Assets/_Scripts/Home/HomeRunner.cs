@@ -1,6 +1,7 @@
 using UnityEngine;
 using CursedDepths.Core.Events;
 using CursedDepths.Core.Settings;
+using UnityEngine.SceneManagement;
 
 public class HomeRunner : MonoBehaviour
 {
@@ -53,5 +54,10 @@ public class HomeRunner : MonoBehaviour
     private void OnSettingsSaved(SettingsSavedEventArgs arg)
     {
         currentSettings = arg.playerSettings;
+    }
+
+    public void StartGame()
+    {
+        SceneManager.LoadScene("Starting Area");
     }
 }

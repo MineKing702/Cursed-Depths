@@ -13,6 +13,8 @@ public class SettingsManager : MonoBehaviour
         GameEvents.OpenSettingsMenu += LoadAndBroadcastSettings;
         GameEvents.ClosedSettingsMenu += SaveSettings;
         GameEvents.SettingsSaved += SaveSettings;
+
+        DontDestroyOnLoad(gameObject);
     }
 
     private void OnDisable()
