@@ -44,10 +44,6 @@ public class PlayerController : MonoBehaviour
         {
             Jump();
         }
-        if (Input.GetKeyDown(settings.Attack))
-        {
-            Punch();
-        }
 
         if (!isGrounded && rb.linearVelocity.y < 0)
         {
@@ -73,13 +69,6 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         }
-    }
-
-    void Punch()
-    {
-        playerAnim.SetBool("IsRunning", false);
-        playerAnim.SetBool("IsFalling", false);
-        playerAnim.SetTrigger("Punch");
     }
 
     void OnCollisionEnter2D(Collision2D collision)
