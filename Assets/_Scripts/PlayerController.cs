@@ -1,98 +1,122 @@
 using CursedDepths.Core.Settings;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+/// <summary>
+/// Handles player movement and jump behavior using configured key bindings.
+/// </summary>
+[RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
+public sealed class PlayerController : MonoBehaviour
 {
-    public PlayerSettings settings;
+    [SerializeField] private float speed = 5f;
+    [SerializeField] private float jumpForce = 7f;
 
-    public float Speed;
-    public float jumpForce;
-
-    private Rigidbody2D rb;
+    private Rigidbody2D playerRigidbody;
+    private Animator playerAnimator;
+    private PlayerSettings playerSettings;
     private bool isGrounded;
-    private Animator playerAnim;
+    private float horizontalInput;
 
-    private float moveInput;
-
-    void Start()
+    private void Start()
     {
-        GameObject settingManager = GameObject.FindWithTag("SettingsManager");
-        settings = settingManager.GetComponent<SettingsManager>().playerSettings;
+        playerRigidbody = GetComponent<Rigidbody2D>();
+        playerAnimator = GetComponent<Animator>();
 
-        rb = GetComponent<Rigidbody2D>();
-        playerAnim = GetComponent<Animator>();
+        SettingsManager settingsManager = SettingsManager.Instance;
+        if (settingsManager == null)
+        {
+            Debug.LogError("SettingsManager is missing. Input defaults will be used.");
+            return;
+        }
+
+        playerSettings = settingsManager.GetOrLoadSettings();
     }
 
-    void Update()
+    private void Update()
     {
-        moveInput = 0f;
-
-        if (Input.GetKey(settings.WalkLeft))
+        if (playerSettings == null)
         {
-            moveInput = -1f;
-            transform.rotation = Quaternion.Euler(0, 180, 0);
-        }
-        else if (Input.GetKey(settings.WalkRight))
-        {
-            moveInput = 1f;
-            transform.rotation = Quaternion.Euler(0, 0, 0);
+            return;
         }
 
-        playerAnim.SetBool("IsRunning", moveInput != 0f && isGrounded);
+        horizontalInput = ReadHorizontalInput();
+        UpdateFacingDirection(horizontalInput);
+        playerAnimator.SetBool("IsRunning", horizontalInput != 0f && isGrounded);
 
-        if (Input.GetKeyDown(settings.Jump))
+        if (Input.GetKeyDown(playerSettings.Jump))
         {
             Jump();
         }
-        if (Input.GetKeyDown(settings.Attack))
-        {
-            Punch();
-        }
 
-        if (!isGrounded && rb.linearVelocity.y < 0)
+        if (!isGrounded && playerRigidbody.linearVelocity.y < 0)
         {
-            playerAnim.SetBool("IsFalling", true);
+            playerAnimator.SetBool("IsFalling", true);
         }
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
-        rb.linearVelocity = new Vector2(moveInput * Speed, rb.linearVelocity.y);
+        playerRigidbody.linearVelocity = new Vector2(horizontalInput * speed, playerRigidbody.linearVelocity.y);
     }
 
-    void Jump()
+    /// <summary>
+    /// Applies upward impulse when the player is on the ground.
+    /// </summary>
+    public void Jump()
     {
-        if (isGrounded)
+        if (!isGrounded)
         {
-            isGrounded = false;
-
-            playerAnim.SetBool("IsRunning", false);
-            playerAnim.SetBool("IsFalling", false);
-            playerAnim.SetTrigger("Jump");
-
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
-            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            return;
         }
+
+        isGrounded = false;
+        playerAnimator.SetBool("IsRunning", false);
+        playerAnimator.SetBool("IsFalling", false);
+        playerAnimator.SetTrigger("Jump");
+
+        playerRigidbody.linearVelocity = new Vector2(playerRigidbody.linearVelocity.x, 0f);
+        playerRigidbody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
     }
 
-    void Punch()
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        playerAnim.SetBool("IsRunning", false);
-        playerAnim.SetBool("IsFalling", false);
-        playerAnim.SetTrigger("Punch");
-    }
-
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (!collision.gameObject.CompareTag("Ground"))
         {
-            if (!isGrounded)
-            {
-                playerAnim.SetBool("IsFalling", false);
-                playerAnim.SetTrigger("Land");
-            }
+            return;
+        }
 
-            isGrounded = true;
+        if (!isGrounded)
+        {
+            playerAnimator.SetBool("IsFalling", false);
+            playerAnimator.SetTrigger("Land");
+        }
+
+        isGrounded = true;
+    }
+
+    private float ReadHorizontalInput()
+    {
+        if (Input.GetKey(playerSettings.WalkLeft))
+        {
+            return -1f;
+        }
+
+        if (Input.GetKey(playerSettings.WalkRight))
+        {
+            return 1f;
+        }
+
+        return 0f;
+    }
+
+    private void UpdateFacingDirection(float input)
+    {
+        if (input < 0f)
+        {
+            transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+        }
+        else if (input > 0f)
+        {
+            transform.rotation = Quaternion.identity;
         }
     }
 }

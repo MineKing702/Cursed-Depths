@@ -3,9 +3,37 @@ using UnityEngine;
 using CursedDepths.Core.Events;
 using CursedDepths.Core.Settings;
 
-public class SettingsManager : MonoBehaviour
+/// <summary>
+/// Owns player settings lifecycle, persistence, and event wiring for the game.
+/// </summary>
+public sealed class SettingsManager : MonoBehaviour
 {
-    public PlayerSettings playerSettings;
+    private const string SettingsObjectName = "SettingsManager";
+
+    /// <summary>
+    /// Gets the global settings manager instance.
+    /// </summary>
+    public static SettingsManager Instance { get; private set; }
+
+    /// <summary>
+    /// Gets the current in-memory player settings.
+    /// </summary>
+    public PlayerSettings CurrentSettings { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        gameObject.name = SettingsObjectName;
+        DontDestroyOnLoad(gameObject);
+
+        CurrentSettings ??= CreateDefaultSettings();
+    }
 
     private void OnEnable()
     {
@@ -13,8 +41,6 @@ public class SettingsManager : MonoBehaviour
         GameEvents.OpenSettingsMenu += LoadAndBroadcastSettings;
         GameEvents.ClosedSettingsMenu += SaveSettings;
         GameEvents.SettingsSaved += SaveSettings;
-
-        DontDestroyOnLoad(gameObject);
     }
 
     private void OnDisable()
@@ -25,15 +51,29 @@ public class SettingsManager : MonoBehaviour
         GameEvents.SettingsSaved -= SaveSettings;
     }
 
+    /// <summary>
+    /// Gets current settings, loading persisted values if needed.
+    /// </summary>
+    /// <returns>The active player settings instance.</returns>
+    public PlayerSettings GetOrLoadSettings()
+    {
+        if (CurrentSettings == null)
+        {
+            LoadSettings();
+        }
+
+        return CurrentSettings;
+    }
+
     private void LoadAndBroadcastSettings()
     {
         LoadSettings();
-        GameEvents.LoadedSettings(new SettingsLoadedEventArgs(playerSettings));
+        GameEvents.LoadedSettings(new SettingsLoadedEventArgs(CurrentSettings));
     }
 
     private void LoadSettings()
     {
-        playerSettings = new PlayerSettings
+        CurrentSettings = new PlayerSettings
         {
             MasterVolume = PlayerPrefs.GetFloat("MasterVolume", 100f),
             MusicVolume = PlayerPrefs.GetFloat("MusicVolume", 100f),
@@ -45,12 +85,13 @@ public class SettingsManager : MonoBehaviour
         };
     }
 
-    private KeyCode GetKey(string prefKey, KeyCode defaultKey)
+    private static KeyCode GetKey(string prefKey, KeyCode defaultKey)
     {
         string key = PlayerPrefs.GetString(prefKey, string.Empty);
-
         if (Enum.TryParse(key, out KeyCode keyCode))
+        {
             return keyCode;
+        }
 
         return defaultKey;
     }
@@ -65,12 +106,18 @@ public class SettingsManager : MonoBehaviour
         SaveSettings(arg.playerSettings);
     }
 
-    private void SaveSettings(PlayerSettings settings)
+    /// <summary>
+    /// Saves the supplied settings and applies them as current runtime settings.
+    /// </summary>
+    /// <param name="settings">The settings to persist.</param>
+    public void SaveSettings(PlayerSettings settings)
     {
         if (settings == null)
+        {
             return;
+        }
 
-        playerSettings = settings;
+        CurrentSettings = settings;
 
         PlayerPrefs.SetFloat("MasterVolume", settings.MasterVolume);
         PlayerPrefs.SetFloat("MusicVolume", settings.MusicVolume);
@@ -82,5 +129,19 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.SetString("AttackBind", settings.Attack.ToString());
 
         PlayerPrefs.Save();
+    }
+
+    private static PlayerSettings CreateDefaultSettings()
+    {
+        return new PlayerSettings
+        {
+            MasterVolume = 100f,
+            MusicVolume = 100f,
+            SoundEffects = 100f,
+            WalkLeft = KeyCode.A,
+            WalkRight = KeyCode.D,
+            Jump = KeyCode.Space,
+            Attack = KeyCode.Mouse0
+        };
     }
 }

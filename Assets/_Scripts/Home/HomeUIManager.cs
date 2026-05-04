@@ -6,6 +6,9 @@ using TMPro;
 using CursedDepths.Core.Events;
 using CursedDepths.Core.Settings;
 
+/// <summary>
+/// Controls Home scene UI transitions, settings widgets, and key rebinding.
+/// </summary>
 public class HomeUIManager : MonoBehaviour
 {
     public Image FadeInCover;
@@ -131,6 +134,9 @@ public class HomeUIManager : MonoBehaviour
         GameEvents.FinishGameStartup();
     }
 
+    /// <summary>
+    /// Starts the open-settings UI transition.
+    /// </summary>
     public void OpenSettings()
     {
         StartCoroutine(OpenSettingsMenu());
@@ -147,6 +153,10 @@ public class HomeUIManager : MonoBehaviour
         HomeUIParentAnim.gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// Starts the close-settings UI transition.
+    /// </summary>
+    /// <param name="arg">The settings payload from the close request event.</param>
     public void CloseSettings(ClosedSettingsMenuEventArgs arg)
     {
         StartCoroutine(CloseSettingsMenu());
@@ -199,6 +209,9 @@ public class HomeUIManager : MonoBehaviour
         if (AttackKeyTxt != null) AttackKeyTxt.text = settings.Attack.ToString();
     }
 
+    /// <summary>
+    /// Saves the master volume from the UI slider.
+    /// </summary>
     public void UpdateMasterVol()
     {
         if (!CanApplySliderChange()) return;
@@ -207,6 +220,9 @@ public class HomeUIManager : MonoBehaviour
         GameEvents.SaveSettings(new SettingsSavedEventArgs(currentSettings));
     }
 
+    /// <summary>
+    /// Saves the music volume from the UI slider.
+    /// </summary>
     public void UpdateMusicVol()
     {
         if (!CanApplySliderChange()) return;
@@ -215,6 +231,9 @@ public class HomeUIManager : MonoBehaviour
         GameEvents.SaveSettings(new SettingsSavedEventArgs(currentSettings));
     }
 
+    /// <summary>
+    /// Saves the sound effects volume from the UI slider.
+    /// </summary>
     public void UpdateEffectVol()
     {
         if (!CanApplySliderChange()) return;
@@ -228,9 +247,21 @@ public class HomeUIManager : MonoBehaviour
         return waitingForBind == BindTarget.None && currentSettings != null;
     }
 
+    /// <summary>
+    /// Begins rebinding for the walk-left input.
+    /// </summary>
     public void RebindWalkLeft() => StartRebind(BindTarget.WalkLeft, WalkLeftKeyTxt);
+    /// <summary>
+    /// Begins rebinding for the walk-right input.
+    /// </summary>
     public void RebindWalkRight() => StartRebind(BindTarget.WalkRight, WalkRightKeyTxt);
+    /// <summary>
+    /// Begins rebinding for the jump input.
+    /// </summary>
     public void RebindJump() => StartRebind(BindTarget.Jump, JumpKeyTxt);
+    /// <summary>
+    /// Begins rebinding for the attack input.
+    /// </summary>
     public void RebindAttack() => StartRebind(BindTarget.Attack, AttackKeyTxt);
 
     private void StartRebind(BindTarget target, TextMeshProUGUI text)
