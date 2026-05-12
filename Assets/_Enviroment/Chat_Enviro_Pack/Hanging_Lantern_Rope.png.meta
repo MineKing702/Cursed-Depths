@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Hanging_Lantern_Rope_0: 1020922699477069559
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
