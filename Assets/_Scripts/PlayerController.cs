@@ -16,6 +16,9 @@ public sealed class PlayerController : MonoBehaviour
     private bool isGrounded;
     private float horizontalInput;
 
+    public Health playerHealth;
+    public Coordinate playerCoords;
+
     private void Start()
     {
         playerRigidbody = GetComponent<Rigidbody2D>();
@@ -118,5 +121,10 @@ public sealed class PlayerController : MonoBehaviour
         {
             transform.rotation = Quaternion.identity;
         }
+    }
+
+    public void TakeDamage(int amnt)
+    {
+
     }
 }
