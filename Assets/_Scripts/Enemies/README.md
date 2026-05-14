@@ -16,6 +16,7 @@ Optional components and references:
 - Patrol point transforms assigned to `patrolPoints`
 - `playerTarget` assigned manually, or a player GameObject tagged `Player`
 - `playerLayer` configured as a fallback lookup when no tagged/manual target is available
+- Keep `Lock Rotation` enabled for normal walking enemies so Rigidbody2D collisions do not make them spin while chasing or fleeing
 
 Animation setup:
 

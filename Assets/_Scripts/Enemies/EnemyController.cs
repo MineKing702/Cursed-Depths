@@ -20,6 +20,7 @@ public sealed class EnemyController : MonoBehaviour
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float patrolSpeed = 1.5f;
     [SerializeField] private float fleeSpeed = 4f;
+    [SerializeField] private bool lockRotation = true;
     [SerializeField] private Transform[] patrolPoints = Array.Empty<Transform>();
     [SerializeField] private Vector3 rightFacingScale = new Vector3(1.4f, 1.4f, 1f);
     [SerializeField] private Vector3 leftFacingScale = new Vector3(-1.4f, 1.4f, 1f);
@@ -64,6 +65,7 @@ public sealed class EnemyController : MonoBehaviour
     private float lastAttackTime = float.NegativeInfinity;
     private float hurtEndsAt;
     private int fallbackCurrentHealth;
+    private float lockedRotation;
     private bool isGrounded;
     private bool isDead;
     private bool missingPlayerWarningLogged;
@@ -78,6 +80,13 @@ public sealed class EnemyController : MonoBehaviour
     {
         enemyRigidbody = GetComponent<Rigidbody2D>();
         enemyAnimator = GetComponent<Animator>();
+        lockedRotation = enemyRigidbody.rotation;
+
+        if (lockRotation)
+        {
+            enemyRigidbody.constraints |= RigidbodyConstraints2D.FreezeRotation;
+            StabilizeRotation();
+        }
 
         Transform groundSensorTransform = transform.Find("GroundSensor");
         if (groundSensorTransform != null)
@@ -155,6 +164,8 @@ public sealed class EnemyController : MonoBehaviour
                 HandleDead();
                 break;
         }
+
+        StabilizeRotation();
     }
 
     /// <summary>
@@ -520,6 +531,18 @@ public sealed class EnemyController : MonoBehaviour
     private void StopAllMovement()
     {
         enemyRigidbody.linearVelocity = Vector2.zero;
+        enemyRigidbody.angularVelocity = 0f;
+    }
+
+    private void StabilizeRotation()
+    {
+        if (!lockRotation)
+        {
+            return;
+        }
+
+        enemyRigidbody.angularVelocity = 0f;
+        enemyRigidbody.SetRotation(lockedRotation);
     }
 
     private void FaceDirection(float direction)
