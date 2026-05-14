@@ -33,6 +33,7 @@ public sealed class PlayerController : MonoBehaviour
     private Coroutine deathCoroutine;
     private Vector3 startingPosition;
     private Quaternion startingRotation;
+    private Vector3 cameraStartPos;
     private SpriteRenderer[] spriteRenderers;
     private Collider2D[] playerColliders;
 
@@ -47,6 +48,7 @@ public sealed class PlayerController : MonoBehaviour
         playerColliders = GetComponentsInChildren<Collider2D>();
         startingPosition = transform.position;
         startingRotation = transform.rotation;
+        cameraStartPos = GameObject.FindGameObjectWithTag("MainCamera").transform.position;
 
         maxHealth = Mathf.Max(1, maxHealth);
         currentHealth = maxHealth;
@@ -328,6 +330,7 @@ public sealed class PlayerController : MonoBehaviour
     {
         transform.position = startingPosition;
         transform.rotation = startingRotation;
+        GameObject.FindGameObjectWithTag("MainCamera").transform.position = cameraStartPos;
         currentHealth = maxHealth;
         horizontalInput = 0f;
         maxFallSpeed = 0f;
@@ -340,6 +343,8 @@ public sealed class PlayerController : MonoBehaviour
         SetSpriteRenderersEnabled(true);
         playerAnimator.SetBool("IsRunning", false);
         playerAnimator.SetBool("IsFalling", false);
+
+
 
         isDead = false;
     }
