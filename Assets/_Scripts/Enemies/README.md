@@ -15,6 +15,7 @@ Optional components and references:
 - `Health` and `Coordinate` references if the CursedDepths core package supplies them as assignable Unity objects
 - Patrol point transforms assigned to `patrolPoints`
 - `playerTarget` assigned manually, or a player GameObject tagged `Player`
+- Leave `Use Target Coordinate For Position` disabled unless the player's `Coordinate` is actively synced every frame; the target `Transform` is more reliable for attack-range checks
 - `playerLayer` configured as a fallback lookup when no tagged/manual target is available
 - Keep `Lock Rotation` enabled for normal walking enemies so Rigidbody2D collisions do not make them spin while chasing or fleeing
 - Keep `Avoid Ledges` enabled and set `Ground Layer` to your platforms/terrain so the enemy raycasts down from the current and next leading-foot positions before each horizontal move

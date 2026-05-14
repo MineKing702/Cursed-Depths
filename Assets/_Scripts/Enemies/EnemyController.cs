@@ -11,6 +11,7 @@ public sealed class EnemyController : MonoBehaviour
 {
     [Header("Targeting")]
     [SerializeField] private Transform playerTarget;
+    [SerializeField] private bool useTargetCoordinateForPosition;
     [SerializeField] private float detectionRange = 6f;
     [SerializeField] private float loseInterestRange = 8f;
     [SerializeField] private float attackRange = 1.2f;
@@ -767,12 +768,22 @@ public sealed class EnemyController : MonoBehaviour
 
     private Vector2 GetTargetPosition()
     {
-        if (targetCoords != null && TryReadCoordinate(targetCoords, out Vector2 coordinatePosition))
+        if (useTargetCoordinateForPosition && targetCoords != null && TryReadCoordinate(targetCoords, out Vector2 coordinatePosition))
         {
             return coordinatePosition;
         }
 
-        return playerTarget != null ? playerTarget.position : transform.position;
+        if (playerTarget != null)
+        {
+            return playerTarget.position;
+        }
+
+        if (targetCoords != null && TryReadCoordinate(targetCoords, out Vector2 fallbackCoordinatePosition))
+        {
+            return fallbackCoordinatePosition;
+        }
+
+        return transform.position;
     }
 
     private bool ShouldFlee()
