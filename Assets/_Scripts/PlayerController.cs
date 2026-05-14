@@ -26,8 +26,6 @@ public sealed class PlayerController : MonoBehaviour
     [SerializeField] private int maxFallDamage = 50;
 
     [Header("Death / Respawn")]
-    [SerializeField] private float deathFallDuration = 0.35f;
-    [SerializeField] private float deathFallAngle = 90f;
     [SerializeField] private float respawnDelay = 2f;
     [SerializeField] private int deathSmokeParticleCount = 16;
 
@@ -92,7 +90,6 @@ public sealed class PlayerController : MonoBehaviour
         minimumFallDamageVelocity = Mathf.Max(0f, minimumFallDamageVelocity);
         fallDamageMultiplier = Mathf.Max(0f, fallDamageMultiplier);
         maxFallDamage = Mathf.Max(0, maxFallDamage);
-        deathFallDuration = Mathf.Max(0f, deathFallDuration);
         respawnDelay = Mathf.Max(0f, respawnDelay);
         deathSmokeParticleCount = Mathf.Max(0, deathSmokeParticleCount);
 
@@ -103,7 +100,7 @@ public sealed class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("SettingsManager is missing. Falling back to Unity Horizontal input and Space jump.");
+            Debug.LogWarning("SettingsManager is missing. Falling back to Unity Horizontal input, Space jump, and mouse attack.");
         }
     }
 
@@ -183,12 +180,9 @@ public sealed class PlayerController : MonoBehaviour
         {
             TakeDamage(10);
         }
-        else if (Input.GetMouseButtonDown(0))
+        else if (AttackWasPressed())
         {
-            if (HasAnimatorParameter("Attack"))
-            {
-                playerAnimator.SetTrigger("Attack");
-            }
+            Attack();
         }
         else if (Input.GetKeyDown(KeyCode.F))
         {
@@ -243,6 +237,19 @@ public sealed class PlayerController : MonoBehaviour
         }
     }
 
+    private void Attack()
+    {
+        if (isDead)
+        {
+            return;
+        }
+
+        if (HasAnimatorParameter("Attack"))
+        {
+            playerAnimator.SetTrigger("Attack");
+        }
+    }
+
     private float ReadHorizontalInput()
     {
         if (playerSettings != null)
@@ -271,6 +278,18 @@ public sealed class PlayerController : MonoBehaviour
         }
 
         return Input.GetKeyDown(KeyCode.Space);
+    }
+
+    private bool AttackWasPressed()
+    {
+        bool mouseAttackPressed = Input.GetMouseButtonDown(0);
+
+        if (playerSettings != null)
+        {
+            return mouseAttackPressed || Input.GetKeyDown(playerSettings.Attack);
+        }
+
+        return mouseAttackPressed;
     }
 
     private void UpdateFacingDirection(float input)
@@ -348,6 +367,7 @@ public sealed class PlayerController : MonoBehaviour
             invincibilityCoroutine = null;
         }
 
+        // This uses the Bandit death animation trigger.
         if (HasAnimatorParameter("Death"))
         {
             playerAnimator.SetTrigger("Death");
@@ -367,46 +387,18 @@ public sealed class PlayerController : MonoBehaviour
 
     private IEnumerator DeathAndRespawnRoutine()
     {
-        yield return FallOverRoutine();
+        // Wait so the Bandit death animation can play.
+        yield return new WaitForSeconds(respawnDelay);
 
         SpawnDeathSmoke(transform.position);
 
         SetSpriteRenderersEnabled(false);
         SetPlayerCollidersEnabled(false);
-
         playerRigidbody.simulated = false;
-
-        yield return new WaitForSeconds(respawnDelay);
 
         Respawn();
 
         deathCoroutine = null;
-    }
-
-    private IEnumerator FallOverRoutine()
-    {
-        Quaternion startRotation = transform.rotation;
-        Vector3 startEulerAngles = startRotation.eulerAngles;
-
-        float fallDirection = transform.localScale.x < 0f ? 1f : -1f;
-
-        Quaternion endRotation = Quaternion.Euler(
-            startEulerAngles.x,
-            startEulerAngles.y,
-            fallDirection * deathFallAngle
-        );
-
-        float elapsedTime = 0f;
-
-        while (elapsedTime < deathFallDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float t = deathFallDuration > 0f ? elapsedTime / deathFallDuration : 1f;
-            transform.rotation = Quaternion.Lerp(startRotation, endRotation, t);
-            yield return null;
-        }
-
-        transform.rotation = endRotation;
     }
 
     private void Respawn()
@@ -439,6 +431,7 @@ public sealed class PlayerController : MonoBehaviour
             playerAnimator.SetBool("Grounded", false);
         }
 
+        // Bandit animator uses Recover to leave death state.
         if (HasAnimatorParameter("Recover"))
         {
             playerAnimator.SetTrigger("Recover");
