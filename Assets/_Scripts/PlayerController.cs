@@ -3,37 +3,54 @@ using CursedDepths.Core.Settings;
 using UnityEngine;
 
 /// <summary>
-/// Handles player movement and jump behavior using configured key bindings.
+/// Player controller using Bandit-style movement/animations,
+/// with health, fall damage, death, respawn, and settings support.
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
 public sealed class PlayerController : MonoBehaviour
 {
-    [SerializeField] private float speed = 5f;
-    [SerializeField] private float jumpForce = 7f;
+    [Header("Movement")]
+    [SerializeField] private float speed = 4.0f;
+    [SerializeField] private float jumpForce = 7.5f;
+    [SerializeField] private Vector3 rightFacingScale = new Vector3(1.4f, 1.4f, 1f);
+    [SerializeField] private Vector3 leftFacingScale = new Vector3(-1.4f, 1.4f, 1f);
+
+    [Header("Health")]
     [SerializeField] private int maxHealth = 100;
     [SerializeField] private int currentHealth;
     [SerializeField] private float invincibilityDuration = 1f;
+
+    [Header("Fall Damage")]
     [SerializeField] private float minimumFallDamageVelocity = 12f;
     [SerializeField] private float fallDamageMultiplier = 5f;
     [SerializeField] private int maxFallDamage = 50;
+
+    [Header("Death / Respawn")]
     [SerializeField] private float deathFallDuration = 0.35f;
     [SerializeField] private float deathFallAngle = 90f;
     [SerializeField] private float respawnDelay = 2f;
     [SerializeField] private int deathSmokeParticleCount = 16;
 
-    private Rigidbody2D playerRigidbody;
     private Animator playerAnimator;
+    private Rigidbody2D playerRigidbody;
+    private Sensor_Bandit groundSensor;
     private PlayerSettings playerSettings;
+
     private bool isGrounded;
+    private bool combatIdle;
     private bool isDead;
     private bool isInvincible;
+
     private float horizontalInput;
     private float maxFallSpeed;
+
     private Coroutine invincibilityCoroutine;
     private Coroutine deathCoroutine;
+
     private Vector3 startingPosition;
     private Quaternion startingRotation;
     private Vector3 cameraStartPos;
+
     private SpriteRenderer[] spriteRenderers;
     private Collider2D[] playerColliders;
 
@@ -42,16 +59,35 @@ public sealed class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        playerRigidbody = GetComponent<Rigidbody2D>();
         playerAnimator = GetComponent<Animator>();
+        playerRigidbody = GetComponent<Rigidbody2D>();
+
+        Transform groundSensorTransform = transform.Find("GroundSensor");
+        if (groundSensorTransform != null)
+        {
+            groundSensor = groundSensorTransform.GetComponent<Sensor_Bandit>();
+        }
+
+        if (groundSensor == null)
+        {
+            Debug.LogError("GroundSensor with Sensor_Bandit component is missing.");
+        }
+
         spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
         playerColliders = GetComponentsInChildren<Collider2D>();
+
         startingPosition = transform.position;
         startingRotation = transform.rotation;
-        cameraStartPos = GameObject.FindGameObjectWithTag("MainCamera").transform.position;
+
+        GameObject mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+        if (mainCamera != null)
+        {
+            cameraStartPos = mainCamera.transform.position;
+        }
 
         maxHealth = Mathf.Max(1, maxHealth);
         currentHealth = maxHealth;
+
         invincibilityDuration = Mathf.Max(0f, invincibilityDuration);
         minimumFallDamageVelocity = Mathf.Max(0f, minimumFallDamageVelocity);
         fallDamageMultiplier = Mathf.Max(0f, fallDamageMultiplier);
@@ -61,55 +97,121 @@ public sealed class PlayerController : MonoBehaviour
         deathSmokeParticleCount = Mathf.Max(0, deathSmokeParticleCount);
 
         SettingsManager settingsManager = SettingsManager.Instance;
-        if (settingsManager == null)
+        if (settingsManager != null)
         {
-            Debug.LogError("SettingsManager is missing. Input defaults will be used.");
-            return;
+            playerSettings = settingsManager.GetOrLoadSettings();
         }
-
-        playerSettings = settingsManager.GetOrLoadSettings();
+        else
+        {
+            Debug.LogWarning("SettingsManager is missing. Falling back to Unity Horizontal input and Space jump.");
+        }
     }
 
     private void Update()
-    {
-        if (isDead || playerSettings == null)
-        {
-            return;
-        }
-
-        horizontalInput = ReadHorizontalInput();
-        UpdateFacingDirection(horizontalInput);
-        playerAnimator.SetBool("IsRunning", horizontalInput != 0f && isGrounded);
-
-        if (Input.GetKeyDown(playerSettings.Jump))
-        {
-            Jump();
-        }
-
-        if (!isGrounded)
-        {
-            maxFallSpeed = Mathf.Max(maxFallSpeed, -playerRigidbody.linearVelocity.y);
-
-            if (playerRigidbody.linearVelocity.y < 0)
-            {
-                playerAnimator.SetBool("IsFalling", true);
-            }
-        }
-    }
-
-    private void FixedUpdate()
     {
         if (isDead)
         {
             return;
         }
 
-        playerRigidbody.linearVelocity = new Vector2(horizontalInput * speed, playerRigidbody.linearVelocity.y);
+        UpdateGroundedState();
+
+        horizontalInput = ReadHorizontalInput();
+
+        UpdateFacingDirection(horizontalInput);
+
+        playerRigidbody.linearVelocity = new Vector2(
+            horizontalInput * speed,
+            playerRigidbody.linearVelocity.y
+        );
+
+        if (!isGrounded)
+        {
+            maxFallSpeed = Mathf.Max(maxFallSpeed, -playerRigidbody.linearVelocity.y);
+        }
+
+        if (HasAnimatorParameter("AirSpeed"))
+        {
+            playerAnimator.SetFloat("AirSpeed", playerRigidbody.linearVelocity.y);
+        }
+
+        HandleActionsAndAnimations();
     }
 
-    /// <summary>
-    /// Applies upward impulse when the player is on the ground.
-    /// </summary>
+    private void UpdateGroundedState()
+    {
+        if (groundSensor == null)
+        {
+            return;
+        }
+
+        bool sensorGrounded = groundSensor.State();
+
+        if (!isGrounded && sensorGrounded)
+        {
+            isGrounded = true;
+
+            ApplyFallDamage();
+
+            if (HasAnimatorParameter("Grounded"))
+            {
+                playerAnimator.SetBool("Grounded", true);
+            }
+
+            if (!isDead && HasAnimatorParameter("Land"))
+            {
+                playerAnimator.SetTrigger("Land");
+            }
+
+            maxFallSpeed = 0f;
+        }
+
+        if (isGrounded && !sensorGrounded)
+        {
+            isGrounded = false;
+
+            if (HasAnimatorParameter("Grounded"))
+            {
+                playerAnimator.SetBool("Grounded", false);
+            }
+        }
+    }
+
+    private void HandleActionsAndAnimations()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            TakeDamage(10);
+        }
+        else if (Input.GetMouseButtonDown(0))
+        {
+            if (HasAnimatorParameter("Attack"))
+            {
+                playerAnimator.SetTrigger("Attack");
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.F))
+        {
+            combatIdle = !combatIdle;
+        }
+        else if (JumpWasPressed() && isGrounded)
+        {
+            Jump();
+        }
+        else if (Mathf.Abs(horizontalInput) > Mathf.Epsilon)
+        {
+            SetAnimState(2);
+        }
+        else if (combatIdle)
+        {
+            SetAnimState(1);
+        }
+        else
+        {
+            SetAnimState(0);
+        }
+    }
+
     public void Jump()
     {
         if (isDead || !isGrounded)
@@ -117,62 +219,69 @@ public sealed class PlayerController : MonoBehaviour
             return;
         }
 
+        if (HasAnimatorParameter("Jump"))
+        {
+            playerAnimator.SetTrigger("Jump");
+        }
+
         isGrounded = false;
         maxFallSpeed = 0f;
-        playerAnimator.SetBool("IsRunning", false);
-        playerAnimator.SetBool("IsFalling", false);
-        playerAnimator.SetTrigger("Jump");
 
-        playerRigidbody.linearVelocity = new Vector2(playerRigidbody.linearVelocity.x, 0f);
-        playerRigidbody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (!collision.gameObject.CompareTag("Ground"))
+        if (HasAnimatorParameter("Grounded"))
         {
-            return;
+            playerAnimator.SetBool("Grounded", false);
         }
 
-        if (!isGrounded)
+        playerRigidbody.linearVelocity = new Vector2(
+            playerRigidbody.linearVelocity.x,
+            jumpForce
+        );
+
+        if (groundSensor != null)
         {
-            ApplyFallDamage();
-            playerAnimator.SetBool("IsFalling", false);
-
-            if (!isDead)
-            {
-                playerAnimator.SetTrigger("Land");
-            }
+            groundSensor.Disable(0.2f);
         }
-
-        isGrounded = true;
-        maxFallSpeed = 0f;
     }
 
     private float ReadHorizontalInput()
     {
-        if (Input.GetKey(playerSettings.WalkLeft))
+        if (playerSettings != null)
         {
-            return -1f;
+            if (Input.GetKey(playerSettings.WalkLeft))
+            {
+                return -1f;
+            }
+
+            if (Input.GetKey(playerSettings.WalkRight))
+            {
+                return 1f;
+            }
+
+            return 0f;
         }
 
-        if (Input.GetKey(playerSettings.WalkRight))
+        return Input.GetAxis("Horizontal");
+    }
+
+    private bool JumpWasPressed()
+    {
+        if (playerSettings != null)
         {
-            return 1f;
+            return Input.GetKeyDown(playerSettings.Jump);
         }
 
-        return 0f;
+        return Input.GetKeyDown(KeyCode.Space);
     }
 
     private void UpdateFacingDirection(float input)
     {
-        if (input < 0f)
+        if (input > 0f)
         {
-            transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+            transform.localScale = rightFacingScale;
         }
-        else if (input > 0f)
+        else if (input < 0f)
         {
-            transform.rotation = Quaternion.identity;
+            transform.localScale = leftFacingScale;
         }
     }
 
@@ -211,7 +320,10 @@ public sealed class PlayerController : MonoBehaviour
             return;
         }
 
-        int damage = Mathf.CeilToInt((maxFallSpeed - minimumFallDamageVelocity) * fallDamageMultiplier);
+        int damage = Mathf.CeilToInt(
+            (maxFallSpeed - minimumFallDamageVelocity) * fallDamageMultiplier
+        );
+
         damage = Mathf.Clamp(damage, 0, maxFallDamage);
         TakeDamage(damage);
     }
@@ -227,8 +339,8 @@ public sealed class PlayerController : MonoBehaviour
         isInvincible = false;
         horizontalInput = 0f;
         playerRigidbody.linearVelocity = Vector2.zero;
-        playerAnimator.SetBool("IsRunning", false);
-        playerAnimator.SetBool("IsFalling", false);
+
+        SetAnimState(0);
 
         if (invincibilityCoroutine != null)
         {
@@ -236,7 +348,11 @@ public sealed class PlayerController : MonoBehaviour
             invincibilityCoroutine = null;
         }
 
-        if (HasAnimatorParameter("Die"))
+        if (HasAnimatorParameter("Death"))
+        {
+            playerAnimator.SetTrigger("Death");
+        }
+        else if (HasAnimatorParameter("Die"))
         {
             playerAnimator.SetTrigger("Die");
         }
@@ -254,13 +370,16 @@ public sealed class PlayerController : MonoBehaviour
         yield return FallOverRoutine();
 
         SpawnDeathSmoke(transform.position);
+
         SetSpriteRenderersEnabled(false);
         SetPlayerCollidersEnabled(false);
+
         playerRigidbody.simulated = false;
 
         yield return new WaitForSeconds(respawnDelay);
 
         Respawn();
+
         deathCoroutine = null;
     }
 
@@ -268,8 +387,15 @@ public sealed class PlayerController : MonoBehaviour
     {
         Quaternion startRotation = transform.rotation;
         Vector3 startEulerAngles = startRotation.eulerAngles;
-        float fallDirection = Mathf.Approximately(startEulerAngles.y, 180f) ? 1f : -1f;
-        Quaternion endRotation = Quaternion.Euler(startEulerAngles.x, startEulerAngles.y, fallDirection * deathFallAngle);
+
+        float fallDirection = transform.localScale.x < 0f ? 1f : -1f;
+
+        Quaternion endRotation = Quaternion.Euler(
+            startEulerAngles.x,
+            startEulerAngles.y,
+            fallDirection * deathFallAngle
+        );
+
         float elapsedTime = 0f;
 
         while (elapsedTime < deathFallDuration)
@@ -281,6 +407,46 @@ public sealed class PlayerController : MonoBehaviour
         }
 
         transform.rotation = endRotation;
+    }
+
+    private void Respawn()
+    {
+        transform.position = startingPosition;
+        transform.rotation = startingRotation;
+        transform.localScale = rightFacingScale;
+
+        GameObject mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+        if (mainCamera != null)
+        {
+            mainCamera.transform.position = cameraStartPos;
+        }
+
+        currentHealth = maxHealth;
+        horizontalInput = 0f;
+        maxFallSpeed = 0f;
+        isGrounded = false;
+        isInvincible = false;
+        combatIdle = false;
+
+        playerRigidbody.simulated = true;
+        playerRigidbody.linearVelocity = Vector2.zero;
+
+        SetPlayerCollidersEnabled(true);
+        SetSpriteRenderersEnabled(true);
+
+        if (HasAnimatorParameter("Grounded"))
+        {
+            playerAnimator.SetBool("Grounded", false);
+        }
+
+        if (HasAnimatorParameter("Recover"))
+        {
+            playerAnimator.SetTrigger("Recover");
+        }
+
+        SetAnimState(0);
+
+        isDead = false;
     }
 
     private void SpawnDeathSmoke(Vector3 position)
@@ -304,18 +470,23 @@ public sealed class PlayerController : MonoBehaviour
         main.startSize = new ParticleSystem.MinMaxCurve(0.15f, 0.35f);
         main.startColor = new ParticleSystem.MinMaxGradient(
             new Color(0.55f, 0.55f, 0.55f, 0.8f),
-            new Color(0.9f, 0.9f, 0.9f, 0.35f));
+            new Color(0.9f, 0.9f, 0.9f, 0.35f)
+        );
         main.simulationSpace = ParticleSystemSimulationSpace.World;
 
         ParticleSystem.EmissionModule emission = smoke.emission;
         emission.rateOverTime = 0f;
-        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, (short)deathSmokeParticleCount) });
+        emission.SetBursts(new[]
+        {
+            new ParticleSystem.Burst(0f, (short)deathSmokeParticleCount)
+        });
 
         ParticleSystem.ShapeModule shape = smoke.shape;
         shape.shapeType = ParticleSystemShapeType.Circle;
         shape.radius = 0.3f;
 
         ParticleSystemRenderer smokeRenderer = smoke.GetComponent<ParticleSystemRenderer>();
+
         if (spriteRenderers.Length > 0)
         {
             smokeRenderer.sortingLayerID = spriteRenderers[0].sortingLayerID;
@@ -323,30 +494,8 @@ public sealed class PlayerController : MonoBehaviour
         }
 
         smoke.Play();
+
         Destroy(smokeObject, main.duration + 1f);
-    }
-
-    private void Respawn()
-    {
-        transform.position = startingPosition;
-        transform.rotation = startingRotation;
-        GameObject.FindGameObjectWithTag("MainCamera").transform.position = cameraStartPos;
-        currentHealth = maxHealth;
-        horizontalInput = 0f;
-        maxFallSpeed = 0f;
-        isGrounded = false;
-        isInvincible = false;
-
-        playerRigidbody.simulated = true;
-        playerRigidbody.linearVelocity = Vector2.zero;
-        SetPlayerCollidersEnabled(true);
-        SetSpriteRenderersEnabled(true);
-        playerAnimator.SetBool("IsRunning", false);
-        playerAnimator.SetBool("IsFalling", false);
-
-
-
-        isDead = false;
     }
 
     private void SetSpriteRenderersEnabled(bool isEnabled)
@@ -381,6 +530,14 @@ public sealed class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(invincibilityDuration);
         isInvincible = false;
         invincibilityCoroutine = null;
+    }
+
+    private void SetAnimState(int state)
+    {
+        if (HasAnimatorParameter("AnimState"))
+        {
+            playerAnimator.SetInteger("AnimState", state);
+        }
     }
 
     private bool HasAnimatorParameter(string parameterName)
