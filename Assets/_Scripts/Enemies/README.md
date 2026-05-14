@@ -5,16 +5,23 @@ Add `EnemyController` to enemy GameObjects instead of the input-driven Bandits P
 Required components:
 
 - `Rigidbody2D`
-- `Animator` using the LightBandit or HeavyBandit controller/override
+- An enemy-specific `Animator`
 - One or more `Collider2D` components
 - `EnemyController`
 
 Optional components and references:
 
-- A child named `GroundSensor` with `Sensor_Bandit` for grounded and air-speed animator updates
+- A child named `GroundSensor` with `Sensor_Bandit` when the enemy animator needs grounded/vertical-speed parameters
 - `Health` and `Coordinate` references if the CursedDepths core package supplies them as assignable Unity objects
 - Patrol point transforms assigned to `patrolPoints`
 - `playerTarget` assigned manually, or a player GameObject tagged `Player`
 - `playerLayer` configured as a fallback lookup when no tagged/manual target is available
 
-The controller drives Bandit-style animator parameters only when they exist, so missing optional parameters should not produce Animator errors.
+Animation setup:
+
+- By default, `EnemyController` does **not** assume the player's Bandit animator state values.
+- Map your enemy Animator parameters in the `Animation` section (`EnemyState`, `Speed`, `IsMoving`, `Grounded`, `VerticalSpeed`, and attack/hurt/death triggers), or leave fields blank for parameters the controller should not drive.
+- Enable `Use Bandit Animator Parameters` only for enemies that intentionally use the Bandit demo controller (`AnimState`, `Grounded`, `AirSpeed`, `Attack`, `Hurt`, `Death`).
+- Disable `Drive Animator` if an enemy prefab has its own animation script and should only use this component for AI movement/combat decisions.
+
+The controller checks whether each configured parameter exists before setting it, so missing optional parameters should not produce Animator errors.

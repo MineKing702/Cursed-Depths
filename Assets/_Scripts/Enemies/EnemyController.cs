@@ -3,7 +3,7 @@ using System.Reflection;
 using UnityEngine;
 
 /// <summary>
-/// Reusable 2D enemy AI controller that drives Bandit-style movement, animations,
+/// Reusable 2D enemy AI controller that drives movement, custom enemy animations,
 /// health, coordinates, and melee attacks with an explicit EnemyState state machine.
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
@@ -37,6 +37,18 @@ public sealed class EnemyController : MonoBehaviour
     [Header("Shared Core Data")]
     public Health enemyHealth;
     public Coordinate enemyCoords;
+
+    [Header("Animation")]
+    [SerializeField] private bool driveAnimator = true;
+    [SerializeField] private bool useBanditAnimatorParameters;
+    [SerializeField] private string stateParameterName = "EnemyState";
+    [SerializeField] private string speedParameterName = "Speed";
+    [SerializeField] private string movingParameterName = "IsMoving";
+    [SerializeField] private string groundedParameterName = "Grounded";
+    [SerializeField] private string verticalSpeedParameterName = "VerticalSpeed";
+    [SerializeField] private string attackTriggerName = "Attack";
+    [SerializeField] private string hurtTriggerName = "Hurt";
+    [SerializeField] private string deathTriggerName = "Death";
 
     [Header("Debug")]
     [SerializeField] private EnemyState currentState;
@@ -338,26 +350,26 @@ public sealed class EnemyController : MonoBehaviour
         switch (currentState)
         {
             case EnemyState.Idle:
-                SetAnimState(0);
+                SetAnimatorStateValue(GetAnimatorStateValue(currentState));
                 break;
             case EnemyState.Patrolling:
             case EnemyState.Chasing:
             case EnemyState.Fleeing:
-                SetAnimState(2);
+                SetAnimatorStateValue(GetAnimatorStateValue(currentState));
                 break;
             case EnemyState.Attacking:
                 StopHorizontalMovement();
                 break;
             case EnemyState.Hurt:
                 hurtEndsAt = Time.time + hurtDuration;
-                TriggerAnimator("Hurt");
+                TriggerAnimator(hurtTriggerName);
                 StopHorizontalMovement();
                 break;
             case EnemyState.Dead:
                 isDead = true;
                 StopAllMovement();
-                SetAnimState(0);
-                TriggerAnimator("Death");
+                SetAnimatorStateValue(GetAnimatorStateValue(currentState));
+                TriggerAnimator(deathTriggerName);
                 break;
         }
     }
@@ -423,7 +435,7 @@ public sealed class EnemyController : MonoBehaviour
             return;
         }
 
-        TriggerAnimator("Attack");
+        TriggerAnimator(attackTriggerName);
         ApplyDamageToTarget();
         lastAttackTime = Time.time;
     }
@@ -586,44 +598,92 @@ public sealed class EnemyController : MonoBehaviour
 
     private void UpdateAnimator()
     {
-        if (groundSensor != null && HasAnimatorParameter("Grounded", AnimatorControllerParameterType.Bool))
+        if (!driveAnimator || enemyAnimator == null)
         {
-            enemyAnimator.SetBool("Grounded", isGrounded);
+            return;
         }
 
-        if (HasAnimatorParameter("AirSpeed", AnimatorControllerParameterType.Float))
+        string groundedName = useBanditAnimatorParameters ? "Grounded" : groundedParameterName;
+        string verticalSpeedName = useBanditAnimatorParameters ? "AirSpeed" : verticalSpeedParameterName;
+
+        SetAnimatorBool(groundedName, isGrounded);
+        SetAnimatorFloat(verticalSpeedName, enemyRigidbody.linearVelocity.y);
+
+        if (!useBanditAnimatorParameters)
         {
-            enemyAnimator.SetFloat("AirSpeed", enemyRigidbody.linearVelocity.y);
+            SetAnimatorFloat(speedParameterName, Mathf.Abs(enemyRigidbody.linearVelocity.x));
+            SetAnimatorBool(movingParameterName, Mathf.Abs(enemyRigidbody.linearVelocity.x) > Mathf.Epsilon);
+        }
+        SetAnimatorStateValue(GetAnimatorStateValue(currentState));
+    }
+
+    private int GetAnimatorStateValue(EnemyState state)
+    {
+        if (!useBanditAnimatorParameters)
+        {
+            return (int)state;
         }
 
-        switch (currentState)
+        switch (state)
         {
-            case EnemyState.Idle:
-            case EnemyState.Hurt:
-            case EnemyState.Dead:
-                SetAnimState(0);
-                break;
             case EnemyState.Attacking:
-                SetAnimState(1);
-                break;
+                return 1;
             case EnemyState.Patrolling:
             case EnemyState.Chasing:
             case EnemyState.Fleeing:
-                SetAnimState(2);
-                break;
+                return 2;
+            default:
+                return 0;
         }
     }
 
-    private void SetAnimState(int state)
+    private void SetAnimatorStateValue(int state)
     {
-        if (HasAnimatorParameter("AnimState", AnimatorControllerParameterType.Int))
+        if (!driveAnimator || enemyAnimator == null)
         {
-            enemyAnimator.SetInteger("AnimState", state);
+            return;
+        }
+
+        string parameterName = useBanditAnimatorParameters ? "AnimState" : stateParameterName;
+        if (HasAnimatorParameter(parameterName, AnimatorControllerParameterType.Int))
+        {
+            enemyAnimator.SetInteger(parameterName, state);
+        }
+    }
+
+    private void SetAnimatorFloat(string parameterName, float value)
+    {
+        if (!driveAnimator || enemyAnimator == null || string.IsNullOrWhiteSpace(parameterName))
+        {
+            return;
+        }
+
+        if (HasAnimatorParameter(parameterName, AnimatorControllerParameterType.Float))
+        {
+            enemyAnimator.SetFloat(parameterName, value);
+        }
+    }
+
+    private void SetAnimatorBool(string parameterName, bool value)
+    {
+        if (!driveAnimator || enemyAnimator == null || string.IsNullOrWhiteSpace(parameterName))
+        {
+            return;
+        }
+
+        if (HasAnimatorParameter(parameterName, AnimatorControllerParameterType.Bool))
+        {
+            enemyAnimator.SetBool(parameterName, value);
         }
     }
 
     private void TriggerAnimator(string parameterName)
     {
+        if (!driveAnimator || enemyAnimator == null || string.IsNullOrWhiteSpace(parameterName))
+        {
+            return;
+        }
+
         if (HasAnimatorParameter(parameterName, AnimatorControllerParameterType.Trigger))
         {
             enemyAnimator.SetTrigger(parameterName);
@@ -632,6 +692,11 @@ public sealed class EnemyController : MonoBehaviour
 
     private bool HasAnimatorParameter(string parameterName, AnimatorControllerParameterType parameterType)
     {
+        if (string.IsNullOrWhiteSpace(parameterName) || enemyAnimator == null)
+        {
+            return false;
+        }
+
         foreach (AnimatorControllerParameter parameter in enemyAnimator.parameters)
         {
             if (parameter.name == parameterName && parameter.type == parameterType)
