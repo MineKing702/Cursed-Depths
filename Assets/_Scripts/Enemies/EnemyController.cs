@@ -26,6 +26,14 @@ public sealed class EnemyController : MonoBehaviour
     [SerializeField] private Vector3 leftFacingScale = new Vector3(-1.4f, 1.4f, 1f);
     [SerializeField] private bool startPatrolling = true;
 
+    [Header("Ledge Detection")]
+    [SerializeField] private bool avoidLedges = true;
+    [SerializeField] private LayerMask groundLayer = ~0;
+    [SerializeField] private float ledgeRaycastDistance = 1.25f;
+    [SerializeField] private float ledgeRaycastHorizontalOffset = 0.1f;
+    [SerializeField] private float ledgeRaycastVerticalOffset = 0.05f;
+    [SerializeField] private bool drawLedgeRaycasts;
+
     [Header("Combat")]
     [SerializeField] private float attackCooldown = 1f;
     [SerializeField] private int attackDamage = 10;
@@ -57,6 +65,7 @@ public sealed class EnemyController : MonoBehaviour
     private Rigidbody2D enemyRigidbody;
     private Animator enemyAnimator;
     private Sensor_Bandit groundSensor;
+    private Collider2D[] enemyColliders;
     private PlayerController playerController;
     private Health targetHealth;
     private Coordinate targetCoords;
@@ -80,6 +89,7 @@ public sealed class EnemyController : MonoBehaviour
     {
         enemyRigidbody = GetComponent<Rigidbody2D>();
         enemyAnimator = GetComponent<Animator>();
+        enemyColliders = GetComponentsInChildren<Collider2D>();
         lockedRotation = enemyRigidbody.rotation;
 
         if (lockRotation)
@@ -105,6 +115,9 @@ public sealed class EnemyController : MonoBehaviour
         fleeSpeed = Mathf.Max(0f, fleeSpeed);
         hurtDuration = Mathf.Max(0f, hurtDuration);
         patrolPointArrivalDistance = Mathf.Max(0.01f, patrolPointArrivalDistance);
+        ledgeRaycastDistance = Mathf.Max(0.01f, ledgeRaycastDistance);
+        ledgeRaycastHorizontalOffset = Mathf.Max(0f, ledgeRaycastHorizontalOffset);
+        ledgeRaycastVerticalOffset = Mathf.Max(0f, ledgeRaycastVerticalOffset);
         lowHealthPercentToFlee = Mathf.Clamp01(lowHealthPercentToFlee);
 
         fallbackCurrentHealth = maxHealth;
@@ -414,7 +427,10 @@ public sealed class EnemyController : MonoBehaviour
             return;
         }
 
-        MoveHorizontally(direction, patrolSpeed);
+        if (!MoveHorizontally(direction, patrolSpeed))
+        {
+            AdvancePatrolPoint();
+        }
     }
 
     private void HandleChasing()
@@ -511,16 +527,104 @@ public sealed class EnemyController : MonoBehaviour
         }
     }
 
-    private void MoveHorizontally(float direction, float speed)
+    private bool MoveHorizontally(float direction, float speed)
     {
         if (Mathf.Abs(direction) <= Mathf.Epsilon || speed <= 0f)
         {
             StopHorizontalMovement();
-            return;
+            return false;
         }
 
         FaceDirection(direction);
+
+        if (!HasGroundAhead(direction))
+        {
+            StopHorizontalMovement();
+            return false;
+        }
+
         enemyRigidbody.linearVelocity = new Vector2(direction * speed, enemyRigidbody.linearVelocity.y);
+        return true;
+    }
+
+    private bool HasGroundAhead(float direction)
+    {
+        if (!avoidLedges || groundLayer.value == 0 || (groundSensor != null && !isGrounded))
+        {
+            return true;
+        }
+
+        Vector2 origin = GetLedgeRaycastOrigin(direction);
+        RaycastHit2D[] hits = Physics2D.RaycastAll(origin, Vector2.down, ledgeRaycastDistance, groundLayer);
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            if (hit.collider != null && !IsOwnCollider(hit.collider))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private Vector2 GetLedgeRaycastOrigin(float direction)
+    {
+        Bounds bounds = GetMovementBounds();
+        float xOffset = bounds.extents.x + ledgeRaycastHorizontalOffset;
+        return new Vector2(
+            bounds.center.x + Mathf.Sign(direction) * xOffset,
+            bounds.min.y + ledgeRaycastVerticalOffset
+        );
+    }
+
+    private Bounds GetMovementBounds()
+    {
+        if (enemyColliders == null || enemyColliders.Length == 0)
+        {
+            return new Bounds(transform.position, Vector3.one);
+        }
+
+        bool hasBounds = false;
+        Bounds combinedBounds = new Bounds(transform.position, Vector3.zero);
+
+        foreach (Collider2D enemyCollider in enemyColliders)
+        {
+            if (enemyCollider == null || !enemyCollider.enabled || enemyCollider.isTrigger)
+            {
+                continue;
+            }
+
+            if (!hasBounds)
+            {
+                combinedBounds = enemyCollider.bounds;
+                hasBounds = true;
+            }
+            else
+            {
+                combinedBounds.Encapsulate(enemyCollider.bounds);
+            }
+        }
+
+        return hasBounds ? combinedBounds : new Bounds(transform.position, Vector3.one);
+    }
+
+    private bool IsOwnCollider(Collider2D otherCollider)
+    {
+        if (enemyColliders == null)
+        {
+            return false;
+        }
+
+        foreach (Collider2D enemyCollider in enemyColliders)
+        {
+            if (otherCollider == enemyCollider)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void StopHorizontalMovement()
@@ -1022,6 +1126,37 @@ public sealed class EnemyController : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (!drawLedgeRaycasts || !avoidLedges)
+        {
+            return;
+        }
+
+        Gizmos.color = Color.yellow;
+        DrawLedgeGizmo(1f);
+        DrawLedgeGizmo(-1f);
+    }
+
+    private void DrawLedgeGizmo(float direction)
+    {
+        Vector2 origin = Application.isPlaying ? GetLedgeRaycastOrigin(direction) : GetEditorLedgeRaycastOrigin(direction);
+        Vector2 end = origin + Vector2.down * Mathf.Max(0.01f, ledgeRaycastDistance);
+        Gizmos.DrawLine(origin, end);
+        Gizmos.DrawWireSphere(end, 0.04f);
+    }
+
+    private Vector2 GetEditorLedgeRaycastOrigin(float direction)
+    {
+        Collider2D editorCollider = GetComponentInChildren<Collider2D>();
+        Bounds bounds = editorCollider != null ? editorCollider.bounds : new Bounds(transform.position, Vector3.one);
+        float xOffset = bounds.extents.x + Mathf.Max(0f, ledgeRaycastHorizontalOffset);
+        return new Vector2(
+            bounds.center.x + Mathf.Sign(direction) * xOffset,
+            bounds.min.y + Mathf.Max(0f, ledgeRaycastVerticalOffset)
+        );
     }
 
     private void LogMissingPlayerWarning(string message)

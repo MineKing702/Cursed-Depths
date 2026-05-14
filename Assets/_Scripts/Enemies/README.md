@@ -17,6 +17,8 @@ Optional components and references:
 - `playerTarget` assigned manually, or a player GameObject tagged `Player`
 - `playerLayer` configured as a fallback lookup when no tagged/manual target is available
 - Keep `Lock Rotation` enabled for normal walking enemies so Rigidbody2D collisions do not make them spin while chasing or fleeing
+- Keep `Avoid Ledges` enabled and set `Ground Layer` to your platforms/terrain so the enemy raycasts down before each horizontal move
+- Tune `Ledge Raycast Distance` and horizontal/vertical offsets if the ray starts too close to, or too far from, the enemy collider
 
 Animation setup:
 
