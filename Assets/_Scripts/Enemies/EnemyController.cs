@@ -30,9 +30,20 @@ public sealed class EnemyController : MonoBehaviour
     [SerializeField] private bool avoidLedges = true;
     [SerializeField] private LayerMask groundLayer = ~0;
     [SerializeField] private float ledgeRaycastDistance = 1.25f;
-    [SerializeField] private float ledgeRaycastHorizontalOffset = 0.1f;
-    [SerializeField] private float ledgeRaycastVerticalOffset = 0.05f;
+    [SerializeField] private float ledgeRaycastHorizontalOffset = 0.02f;
+    [SerializeField] private float ledgeRaycastVerticalOffset = 0.08f;
+    [SerializeField] private float ledgeLookAheadDistance = 0.05f;
     [SerializeField] private bool drawLedgeRaycasts;
+
+    [Header("Wall Jumping")]
+    [SerializeField] private bool canJumpOverWalls = true;
+    [SerializeField] private LayerMask wallLayer = ~0;
+    [SerializeField] private float wallCheckDistance = 0.12f;
+    [SerializeField] private float wallCheckHeightOffset;
+    [SerializeField] private float wallClearanceHeight = 0.75f;
+    [SerializeField] private float wallJumpHorizontalSpeed = 2.5f;
+    [SerializeField] private float wallJumpForce = 6f;
+    [SerializeField] private float wallJumpCooldown = 0.35f;
 
     [Header("Combat")]
     [SerializeField] private float attackCooldown = 1f;
@@ -72,6 +83,7 @@ public sealed class EnemyController : MonoBehaviour
 
     private int patrolIndex;
     private float lastAttackTime = float.NegativeInfinity;
+    private float lastWallJumpTime = float.NegativeInfinity;
     private float hurtEndsAt;
     private int fallbackCurrentHealth;
     private float lockedRotation;
@@ -118,6 +130,12 @@ public sealed class EnemyController : MonoBehaviour
         ledgeRaycastDistance = Mathf.Max(0.01f, ledgeRaycastDistance);
         ledgeRaycastHorizontalOffset = Mathf.Max(0f, ledgeRaycastHorizontalOffset);
         ledgeRaycastVerticalOffset = Mathf.Max(0f, ledgeRaycastVerticalOffset);
+        ledgeLookAheadDistance = Mathf.Max(0f, ledgeLookAheadDistance);
+        wallCheckDistance = Mathf.Max(0.01f, wallCheckDistance);
+        wallClearanceHeight = Mathf.Max(0.01f, wallClearanceHeight);
+        wallJumpHorizontalSpeed = Mathf.Max(0f, wallJumpHorizontalSpeed);
+        wallJumpForce = Mathf.Max(0f, wallJumpForce);
+        wallJumpCooldown = Mathf.Max(0f, wallJumpCooldown);
         lowHealthPercentToFlee = Mathf.Clamp01(lowHealthPercentToFlee);
 
         fallbackCurrentHealth = maxHealth;
@@ -537,7 +555,12 @@ public sealed class EnemyController : MonoBehaviour
 
         FaceDirection(direction);
 
-        if (!HasGroundAhead(direction))
+        if (HasWallAhead(direction) && TryJumpOverWall(direction, speed))
+        {
+            return true;
+        }
+
+        if (!HasGroundAhead(direction, speed))
         {
             StopHorizontalMovement();
             return false;
@@ -547,19 +570,27 @@ public sealed class EnemyController : MonoBehaviour
         return true;
     }
 
-    private bool HasGroundAhead(float direction)
+    private bool HasGroundAhead(float direction, float speed)
     {
         if (!avoidLedges || groundLayer.value == 0 || (groundSensor != null && !isGrounded))
         {
             return true;
         }
 
-        Vector2 origin = GetLedgeRaycastOrigin(direction);
+        float projectedDistance = speed * Time.fixedDeltaTime + ledgeLookAheadDistance;
+        Vector2 currentFootOrigin = GetLedgeRaycastOrigin(direction, 0f);
+        Vector2 nextFootOrigin = GetLedgeRaycastOrigin(direction, projectedDistance);
+
+        return GroundExistsBelow(currentFootOrigin) && GroundExistsBelow(nextFootOrigin);
+    }
+
+    private bool GroundExistsBelow(Vector2 origin)
+    {
         RaycastHit2D[] hits = Physics2D.RaycastAll(origin, Vector2.down, ledgeRaycastDistance, groundLayer);
 
         foreach (RaycastHit2D hit in hits)
         {
-            if (hit.collider != null && !IsOwnCollider(hit.collider))
+            if (hit.collider != null && !hit.collider.isTrigger && !IsOwnCollider(hit.collider))
             {
                 return true;
             }
@@ -568,14 +599,67 @@ public sealed class EnemyController : MonoBehaviour
         return false;
     }
 
-    private Vector2 GetLedgeRaycastOrigin(float direction)
+    private Vector2 GetLedgeRaycastOrigin(float direction, float extraLookAheadDistance)
     {
         Bounds bounds = GetMovementBounds();
-        float xOffset = bounds.extents.x + ledgeRaycastHorizontalOffset;
+        float xOffset = bounds.extents.x + ledgeRaycastHorizontalOffset + extraLookAheadDistance;
         return new Vector2(
             bounds.center.x + Mathf.Sign(direction) * xOffset,
             bounds.min.y + ledgeRaycastVerticalOffset
         );
+    }
+
+    private bool HasWallAhead(float direction)
+    {
+        if (!canJumpOverWalls || wallLayer.value == 0 || !CanWallJumpNow())
+        {
+            return false;
+        }
+
+        Bounds bounds = GetMovementBounds();
+        float sign = Mathf.Sign(direction);
+        float castDistance = bounds.extents.x + wallCheckDistance;
+        Vector2 lowOrigin = new Vector2(bounds.center.x, bounds.center.y + wallCheckHeightOffset);
+        Vector2 highOrigin = lowOrigin + Vector2.up * wallClearanceHeight;
+
+        bool wallAtBody = RaycastHitsExternalCollider(lowOrigin, Vector2.right * sign, castDistance, wallLayer);
+        bool wallAtClearance = RaycastHitsExternalCollider(highOrigin, Vector2.right * sign, castDistance, wallLayer);
+
+        return wallAtBody && !wallAtClearance;
+    }
+
+    private bool TryJumpOverWall(float direction, float speed)
+    {
+        if (!CanWallJumpNow())
+        {
+            return false;
+        }
+
+        float horizontalSpeed = Mathf.Max(speed, wallJumpHorizontalSpeed);
+        enemyRigidbody.linearVelocity = new Vector2(Mathf.Sign(direction) * horizontalSpeed, wallJumpForce);
+        lastWallJumpTime = Time.time;
+        return true;
+    }
+
+    private bool CanWallJumpNow()
+    {
+        bool groundedEnoughToJump = groundSensor == null || isGrounded;
+        return groundedEnoughToJump && Time.time >= lastWallJumpTime + wallJumpCooldown;
+    }
+
+    private bool RaycastHitsExternalCollider(Vector2 origin, Vector2 direction, float distance, LayerMask layerMask)
+    {
+        RaycastHit2D[] hits = Physics2D.RaycastAll(origin, direction, distance, layerMask);
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            if (hit.collider != null && !hit.collider.isTrigger && !IsOwnCollider(hit.collider))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private Bounds GetMovementBounds()
@@ -1142,17 +1226,24 @@ public sealed class EnemyController : MonoBehaviour
 
     private void DrawLedgeGizmo(float direction)
     {
-        Vector2 origin = Application.isPlaying ? GetLedgeRaycastOrigin(direction) : GetEditorLedgeRaycastOrigin(direction);
+        Vector2 currentOrigin = Application.isPlaying ? GetLedgeRaycastOrigin(direction, 0f) : GetEditorLedgeRaycastOrigin(direction, 0f);
+        Vector2 lookAheadOrigin = Application.isPlaying ? GetLedgeRaycastOrigin(direction, ledgeLookAheadDistance) : GetEditorLedgeRaycastOrigin(direction, ledgeLookAheadDistance);
+        DrawLedgeRayGizmo(currentOrigin);
+        DrawLedgeRayGizmo(lookAheadOrigin);
+    }
+
+    private void DrawLedgeRayGizmo(Vector2 origin)
+    {
         Vector2 end = origin + Vector2.down * Mathf.Max(0.01f, ledgeRaycastDistance);
         Gizmos.DrawLine(origin, end);
         Gizmos.DrawWireSphere(end, 0.04f);
     }
 
-    private Vector2 GetEditorLedgeRaycastOrigin(float direction)
+    private Vector2 GetEditorLedgeRaycastOrigin(float direction, float extraLookAheadDistance)
     {
         Collider2D editorCollider = GetComponentInChildren<Collider2D>();
         Bounds bounds = editorCollider != null ? editorCollider.bounds : new Bounds(transform.position, Vector3.one);
-        float xOffset = bounds.extents.x + Mathf.Max(0f, ledgeRaycastHorizontalOffset);
+        float xOffset = bounds.extents.x + Mathf.Max(0f, ledgeRaycastHorizontalOffset) + Mathf.Max(0f, extraLookAheadDistance);
         return new Vector2(
             bounds.center.x + Mathf.Sign(direction) * xOffset,
             bounds.min.y + Mathf.Max(0f, ledgeRaycastVerticalOffset)

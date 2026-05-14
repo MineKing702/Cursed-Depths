@@ -17,8 +17,10 @@ Optional components and references:
 - `playerTarget` assigned manually, or a player GameObject tagged `Player`
 - `playerLayer` configured as a fallback lookup when no tagged/manual target is available
 - Keep `Lock Rotation` enabled for normal walking enemies so Rigidbody2D collisions do not make them spin while chasing or fleeing
-- Keep `Avoid Ledges` enabled and set `Ground Layer` to your platforms/terrain so the enemy raycasts down before each horizontal move
-- Tune `Ledge Raycast Distance` and horizontal/vertical offsets if the ray starts too close to, or too far from, the enemy collider
+- Keep `Avoid Ledges` enabled and set `Ground Layer` to your platforms/terrain so the enemy raycasts down from the current and next leading-foot positions before each horizontal move
+- Tune `Ledge Raycast Distance`, `Ledge Look Ahead Distance`, and horizontal/vertical offsets if the rays start too close to, or too far from, the enemy collider
+- Keep `Can Jump Over Walls` enabled for enemies that should hop up small ledges or short walls, and set `Wall Layer` to the same layer(s) as climbable terrain
+- Tune `Wall Clearance Height`, `Wall Jump Horizontal Speed`, and `Wall Jump Force` per enemy prefab so the jump clears the ledge without launching too far
 
 Animation setup:
 
