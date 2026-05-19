@@ -78,7 +78,7 @@ public sealed class EnemyController : MonoBehaviour
     private Animator enemyAnimator;
     private Sensor_Bandit groundSensor;
     private Collider2D[] enemyColliders;
-    private PlayerController playerController;
+    [SerializeField] public PlayerController playerController;
     private Health targetHealth;
     private Coordinate targetCoords;
 
@@ -279,7 +279,7 @@ public sealed class EnemyController : MonoBehaviour
 
         if (playerTarget != null)
         {
-            playerController = playerTarget.GetComponent<PlayerController>();
+            playerController = playerTarget.gameObject.GetComponent<PlayerController>();
         }
 
         if (playerController == null && taggedPlayer != null)
@@ -471,6 +471,7 @@ public sealed class EnemyController : MonoBehaviour
         if (!HasTarget())
         {
             ChangeState(EnemyState.Idle);
+            Debug.Log("Changed state");
             return;
         }
 
@@ -478,11 +479,13 @@ public sealed class EnemyController : MonoBehaviour
 
         if (Time.time < lastAttackTime + attackCooldown)
         {
+            // Debug.Log("On cooldown");
             return;
         }
 
-        TriggerAnimator(attackTriggerName);
+        //TriggerAnimator(attackTriggerName);
         ApplyDamageToTarget();
+        // Debug.Log("Dealt Damage");
         lastAttackTime = Time.time;
     }
 
@@ -523,27 +526,34 @@ public sealed class EnemyController : MonoBehaviour
 
     private void ApplyDamageToTarget()
     {
+
+        Debug.Log("Called");
         if (attackDamage <= 0)
         {
-            return;
-        }
-
-        if (targetHealth != null && TryApplyHealthDamage(targetHealth, attackDamage))
-        {
+            Debug.Log("damage is 0");
             return;
         }
 
         if (playerController != null)
         {
+            Debug.Log($"Enemy dealt {attackDamage} damage through PlayerController.");
             playerController.TakeDamage(attackDamage);
+            return;
+        }
+
+        if (targetHealth != null && TryApplyHealthDamage(targetHealth, attackDamage))
+        {
+            Debug.Log($"Enemy dealt {attackDamage} damage through Health.");
             return;
         }
 
         if (!missingTargetHealthWarningLogged)
         {
-            Debug.LogWarning("EnemyController cannot damage the player because the target Health reference is missing.", this);
+            Debug.LogWarning("EnemyController cannot damage the player because no valid damage target was found.", this);
             missingTargetHealthWarningLogged = true;
         }
+
+        Debug.Log("nothin?");
     }
 
     private bool MoveHorizontally(float direction, float speed)
