@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using CursedDepths.Core.Settings;
 using UnityEngine;
 
@@ -14,6 +15,13 @@ public sealed class PlayerController : MonoBehaviour
     [SerializeField] private float jumpForce = 7.5f;
     [SerializeField] private Vector3 rightFacingScale = new Vector3(1.4f, 1.4f, 1f);
     [SerializeField] private Vector3 leftFacingScale = new Vector3(-1.4f, 1.4f, 1f);
+
+    [Header("Combat")]
+    [SerializeField] private int attackDamage = 10;
+    [SerializeField] private float attackRange = 1.25f;
+    [SerializeField] private float attackHitDelay = 0.15f;
+    [SerializeField] private LayerMask enemyLayer;
+    [SerializeField] private Transform attackOrigin;
 
     [Header("Health")]
     [SerializeField] private int maxHealth = 100;
@@ -44,6 +52,9 @@ public sealed class PlayerController : MonoBehaviour
 
     private Coroutine invincibilityCoroutine;
     private Coroutine deathCoroutine;
+    private Coroutine attackCoroutine;
+
+    private bool attackHitPending;
 
     private Vector3 startingPosition;
     private Quaternion startingRotation;
@@ -86,6 +97,9 @@ public sealed class PlayerController : MonoBehaviour
         maxHealth = Mathf.Max(1, maxHealth);
         currentHealth = maxHealth;
 
+        attackDamage = Mathf.Max(0, attackDamage);
+        attackRange = Mathf.Max(0f, attackRange);
+        attackHitDelay = Mathf.Max(0f, attackHitDelay);
         invincibilityDuration = Mathf.Max(0f, invincibilityDuration);
         minimumFallDamageVelocity = Mathf.Max(0f, minimumFallDamageVelocity);
         fallDamageMultiplier = Mathf.Max(0f, fallDamageMultiplier);
@@ -239,7 +253,7 @@ public sealed class PlayerController : MonoBehaviour
 
     private void Attack()
     {
-        if (isDead)
+        if (isDead || attackHitPending)
         {
             return;
         }
@@ -248,6 +262,80 @@ public sealed class PlayerController : MonoBehaviour
         {
             playerAnimator.SetTrigger("Attack");
         }
+
+        attackCoroutine = StartCoroutine(AttackHitRoutine());
+    }
+
+    private IEnumerator AttackHitRoutine()
+    {
+        attackHitPending = true;
+
+        yield return new WaitForSeconds(attackHitDelay);
+
+        int damagedEnemyCount = ApplyMeleeDamage();
+
+        if (damagedEnemyCount > 0)
+        {
+            int totalDamage = damagedEnemyCount * attackDamage;
+            Debug.Log($"Player attack HIT {damagedEnemyCount} enemy(ies) for {totalDamage} total damage ({attackDamage} each).", this);
+        }
+        else
+        {
+            Debug.Log("Player attack MISSED.", this);
+        }
+
+        attackHitPending = false;
+        attackCoroutine = null;
+    }
+
+    private int ApplyMeleeDamage()
+    {
+        if (attackDamage <= 0 || attackRange <= 0f)
+        {
+            return 0;
+        }
+
+        Vector2 attackCenter = GetAttackCenter();
+        float attackRadius = attackRange * 0.5f;
+        Collider2D[] hits = enemyLayer.value != 0
+            ? Physics2D.OverlapCircleAll(attackCenter, attackRadius, enemyLayer)
+            : Physics2D.OverlapCircleAll(attackCenter, attackRadius);
+        HashSet<EnemyHealth> damagedEnemies = new HashSet<EnemyHealth>();
+
+        foreach (Collider2D hit in hits)
+        {
+            EnemyHealth enemy = hit.GetComponent<EnemyHealth>();
+            if (enemy == null || damagedEnemies.Contains(enemy))
+            {
+                continue;
+            }
+
+            if (!IsInFrontOfPlayer(enemy.transform.position))
+            {
+                continue;
+            }
+
+            enemy.TakeDamage(attackDamage);
+            damagedEnemies.Add(enemy);
+        }
+
+        return damagedEnemies.Count;
+    }
+
+    private Vector2 GetAttackCenter()
+    {
+        Transform originTransform = attackOrigin != null ? attackOrigin : transform;
+        Vector2 origin = originTransform.position;
+        float facingDirection = transform.localScale.x >= 0f ? 1f : -1f;
+        return origin + Vector2.right * facingDirection * attackRange * 0.5f;
+    }
+
+    private bool IsInFrontOfPlayer(Vector3 targetPosition)
+    {
+        Transform originTransform = attackOrigin != null ? attackOrigin : transform;
+        Vector2 toTarget = (Vector2)(targetPosition - originTransform.position);
+        float facingDirection = transform.localScale.x >= 0f ? 1f : -1f;
+        return toTarget.x * facingDirection >= -0.01f;
     }
 
     private float ReadHorizontalInput()
@@ -358,6 +446,14 @@ public sealed class PlayerController : MonoBehaviour
         isInvincible = false;
         horizontalInput = 0f;
         playerRigidbody.linearVelocity = Vector2.zero;
+
+        if (attackCoroutine != null)
+        {
+            StopCoroutine(attackCoroutine);
+            attackCoroutine = null;
+        }
+
+        attackHitPending = false;
 
         SetAnimState(0);
 
@@ -544,5 +640,11 @@ public sealed class PlayerController : MonoBehaviour
         }
 
         return false;
+    }
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Vector2 attackCenter = GetAttackCenter();
+        Gizmos.DrawWireSphere(attackCenter, Mathf.Max(0f, attackRange) * 0.5f);
     }
 }
