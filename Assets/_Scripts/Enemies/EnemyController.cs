@@ -527,33 +527,33 @@ public sealed class EnemyController : MonoBehaviour
     private void ApplyDamageToTarget()
     {
 
-        Debug.Log("Called");
+        // Debug.Log("Called");
         if (attackDamage <= 0)
         {
-            Debug.Log("damage is 0");
+            // Debug.Log("damage is 0");
             return;
         }
 
         if (playerController != null)
         {
-            Debug.Log($"Enemy dealt {attackDamage} damage through PlayerController.");
+            // Debug.Log($"Enemy dealt {attackDamage} damage through PlayerController.");
             playerController.TakeDamage(attackDamage);
             return;
         }
 
         if (targetHealth != null && TryApplyHealthDamage(targetHealth, attackDamage))
         {
-            Debug.Log($"Enemy dealt {attackDamage} damage through Health.");
+            // Debug.Log($"Enemy dealt {attackDamage} damage through Health.");
             return;
         }
 
         if (!missingTargetHealthWarningLogged)
         {
-            Debug.LogWarning("EnemyController cannot damage the player because no valid damage target was found.", this);
+            // Debug.LogWarning("EnemyController cannot damage the player because no valid damage target was found.", this);
             missingTargetHealthWarningLogged = true;
         }
 
-        Debug.Log("nothin?");
+        // Debug.Log("nothin?");
     }
 
     private bool MoveHorizontally(float direction, float speed)
