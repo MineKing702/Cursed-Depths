@@ -272,17 +272,27 @@ public sealed class PlayerController : MonoBehaviour
 
         yield return new WaitForSeconds(attackHitDelay);
 
-        ApplyMeleeDamage();
+        int damagedEnemyCount = ApplyMeleeDamage();
+
+        if (damagedEnemyCount > 0)
+        {
+            int totalDamage = damagedEnemyCount * attackDamage;
+            Debug.Log($"Player attack HIT {damagedEnemyCount} enemy(ies) for {totalDamage} total damage ({attackDamage} each).", this);
+        }
+        else
+        {
+            Debug.Log("Player attack MISSED.", this);
+        }
 
         attackHitPending = false;
         attackCoroutine = null;
     }
 
-    private void ApplyMeleeDamage()
+    private int ApplyMeleeDamage()
     {
         if (attackDamage <= 0 || attackRange <= 0f)
         {
-            return;
+            return 0;
         }
 
         Vector2 attackCenter = GetAttackCenter();
@@ -305,6 +315,8 @@ public sealed class PlayerController : MonoBehaviour
             enemy.TakeDamage(attackDamage);
             damagedEnemies.Add(enemy);
         }
+
+        return damagedEnemies.Count;
     }
 
     private Vector2 GetAttackCenter()
