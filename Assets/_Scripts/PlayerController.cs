@@ -296,7 +296,10 @@ public sealed class PlayerController : MonoBehaviour
         }
 
         Vector2 attackCenter = GetAttackCenter();
-        Collider2D[] hits = Physics2D.OverlapCircleAll(attackCenter, attackRange * 0.5f, enemyLayer);
+        float attackRadius = attackRange * 0.5f;
+        Collider2D[] hits = enemyLayer.value != 0
+            ? Physics2D.OverlapCircleAll(attackCenter, attackRadius, enemyLayer)
+            : Physics2D.OverlapCircleAll(attackCenter, attackRadius);
         HashSet<EnemyHealth> damagedEnemies = new HashSet<EnemyHealth>();
 
         foreach (Collider2D hit in hits)
@@ -329,9 +332,10 @@ public sealed class PlayerController : MonoBehaviour
 
     private bool IsInFrontOfPlayer(Vector3 targetPosition)
     {
+        Transform originTransform = attackOrigin != null ? attackOrigin : transform;
+        Vector2 toTarget = (Vector2)(targetPosition - originTransform.position);
         float facingDirection = transform.localScale.x >= 0f ? 1f : -1f;
-        float deltaX = targetPosition.x - transform.position.x;
-        return deltaX * facingDirection > 0f;
+        return toTarget.x * facingDirection >= -0.01f;
     }
 
     private float ReadHorizontalInput()
