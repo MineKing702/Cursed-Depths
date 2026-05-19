@@ -304,7 +304,7 @@ public sealed class PlayerController : MonoBehaviour
 
         foreach (Collider2D hit in hits)
         {
-            EnemyHealth enemy = hit.GetComponentInParent<EnemyHealth>();
+            EnemyHealth enemy = hit.GetComponent<EnemyHealth>();
             if (enemy == null || damagedEnemies.Contains(enemy))
             {
                 continue;
