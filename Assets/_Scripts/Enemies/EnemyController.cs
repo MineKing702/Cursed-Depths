@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Reflection;
 using UnityEngine;
 
@@ -47,12 +48,16 @@ public sealed class EnemyController : MonoBehaviour
     [SerializeField] private float wallJumpCooldown = 0.35f;
 
     [Header("Combat")]
-    [SerializeField] private float attackCooldown = 1f;
+    [SerializeField] private float attackCooldown = 0.3f;
+    [SerializeField] private float attackHitDelay = 0.25f;
+    [SerializeField] private float attackAnimationDuration = 0.7f;
     [SerializeField] private int attackDamage = 10;
     [SerializeField] private int maxHealth = 100;
     [SerializeField, Range(0f, 1f)] private float lowHealthPercentToFlee = 0.25f;
     [SerializeField] private bool canFlee;
-    [SerializeField] private float hurtDuration = 0.25f;
+    [SerializeField] private float hitStunDuration = 0.25f;
+    [SerializeField] private float knockbackForce = 1.5f;
+    [SerializeField] private float deathDisableDelay = 1.2f;
     [SerializeField] private float patrolPointArrivalDistance = 0.15f;
 
     [Header("Shared Core Data")]
@@ -90,6 +95,10 @@ public sealed class EnemyController : MonoBehaviour
     private float lockedRotation;
     private bool isGrounded;
     private bool isDead;
+    private bool isStunned;
+    private bool isAttacking;
+    private bool canAttack = true;
+    private Coroutine attackRoutine;
     private bool missingPlayerWarningLogged;
     private bool missingTargetHealthWarningLogged;
 
@@ -120,13 +129,17 @@ public sealed class EnemyController : MonoBehaviour
         maxHealth = Mathf.Max(1, maxHealth);
         attackDamage = Mathf.Max(0, attackDamage);
         attackCooldown = Mathf.Max(0f, attackCooldown);
+        attackHitDelay = Mathf.Max(0f, attackHitDelay);
+        attackAnimationDuration = Mathf.Max(attackHitDelay, attackAnimationDuration);
         detectionRange = Mathf.Max(0f, detectionRange);
         attackRange = Mathf.Max(0f, attackRange);
         loseInterestRange = Mathf.Max(detectionRange, loseInterestRange);
         moveSpeed = Mathf.Max(0f, moveSpeed);
         patrolSpeed = Mathf.Max(0f, patrolSpeed);
         fleeSpeed = Mathf.Max(0f, fleeSpeed);
-        hurtDuration = Mathf.Max(0f, hurtDuration);
+        hitStunDuration = Mathf.Clamp(hitStunDuration, 0f, 1f);
+        knockbackForce = Mathf.Max(0f, knockbackForce);
+        deathDisableDelay = Mathf.Max(0f, deathDisableDelay);
         patrolPointArrivalDistance = Mathf.Max(0.01f, patrolPointArrivalDistance);
         ledgeRaycastDistance = Mathf.Max(0.01f, ledgeRaycastDistance);
         ledgeRaycastHorizontalOffset = Mathf.Max(0f, ledgeRaycastHorizontalOffset);
@@ -206,6 +219,12 @@ public sealed class EnemyController : MonoBehaviour
     /// <param name="amount">The non-negative amount of damage to apply.</param>
     public void TakeDamage(int amount)
     {
+        Vector2 defaultHitDirection = ((Vector2)transform.position - GetTargetPosition()).normalized;
+        TakeDamage(amount, defaultHitDirection);
+    }
+
+    public void TakeDamage(int amount, Vector2 hitDirection)
+    {
         if (currentState == EnemyState.Dead || isDead)
         {
             return;
@@ -226,7 +245,8 @@ public sealed class EnemyController : MonoBehaviour
             return;
         }
 
-        ChangeState(ShouldFlee() ? EnemyState.Fleeing : EnemyState.Hurt);
+        ChangeState(EnemyState.Hurt);
+        StartCoroutine(HitStunRoutine(hitDirection));
     }
 
     private void InitializeSharedCoreData()
@@ -340,12 +360,9 @@ public sealed class EnemyController : MonoBehaviour
             return;
         }
 
-        if (currentState == EnemyState.Hurt)
+        if (isStunned || isAttacking)
         {
-            if (Time.time < hurtEndsAt)
-            {
-                return;
-            }
+            return;
         }
 
         if (ShouldFlee())
@@ -402,17 +419,32 @@ public sealed class EnemyController : MonoBehaviour
                 break;
             case EnemyState.Attacking:
                 StopHorizontalMovement();
+                StartAttackSequence();
                 break;
             case EnemyState.Hurt:
-                hurtEndsAt = Time.time + hurtDuration;
+                isAttacking = false;
+                canAttack = true;
+                if (attackRoutine != null)
+                {
+                    StopCoroutine(attackRoutine);
+                    attackRoutine = null;
+                }
                 TriggerAnimator(hurtTriggerName);
                 StopHorizontalMovement();
                 break;
             case EnemyState.Dead:
                 isDead = true;
+                isAttacking = false;
+                canAttack = false;
+                if (attackRoutine != null)
+                {
+                    StopCoroutine(attackRoutine);
+                    attackRoutine = null;
+                }
                 StopAllMovement();
                 SetAnimatorStateValue(GetAnimatorStateValue(currentState));
                 TriggerAnimator(deathTriggerName);
+                StartCoroutine(DisableAfterDeathRoutine());
                 break;
         }
     }
@@ -466,27 +498,78 @@ public sealed class EnemyController : MonoBehaviour
 
     private void HandleAttacking()
     {
+        if (isDead || isStunned)
+        {
+            isAttacking = false;
+            return;
+        }
+
         StopHorizontalMovement();
 
-        if (!HasTarget())
+        if (HasTarget())
         {
-            ChangeState(EnemyState.Idle);
-            Debug.Log("Changed state");
+            FaceDirection(GetTargetPosition().x - transform.position.x);
+        }
+    }
+
+    private void StartAttackSequence()
+    {
+        if (isDead || isStunned || isAttacking || !canAttack)
+        {
             return;
         }
 
-        FaceDirection(GetTargetPosition().x - transform.position.x);
-
-        if (Time.time < lastAttackTime + attackCooldown)
+        if (attackRoutine != null)
         {
-            // Debug.Log("On cooldown");
-            return;
+            StopCoroutine(attackRoutine);
         }
 
-        //TriggerAnimator(attackTriggerName);
-        ApplyDamageToTarget();
-        // Debug.Log("Dealt Damage");
+        attackRoutine = StartCoroutine(AttackRoutine());
+    }
+
+    private IEnumerator AttackRoutine()
+    {
+        isAttacking = true;
+        canAttack = false;
+        StopHorizontalMovement();
+        TriggerAnimator(attackTriggerName);
+
+        float hitDelay = Mathf.Clamp(attackHitDelay, 0f, attackAnimationDuration);
+        if (hitDelay > 0f)
+        {
+            yield return new WaitForSeconds(hitDelay);
+        }
+
+        if (!isDead && !isStunned && HasTarget())
+        {
+            float distanceToTarget = Vector2.Distance(transform.position, GetTargetPosition());
+            if (distanceToTarget <= attackRange)
+            {
+                ApplyDamageToTarget();
+            }
+        }
+
+        float remainingAttackLock = Mathf.Max(0f, attackAnimationDuration - hitDelay);
+        if (remainingAttackLock > 0f)
+        {
+            yield return new WaitForSeconds(remainingAttackLock);
+        }
+
+        isAttacking = false;
+        attackRoutine = null;
+
+        if (attackCooldown > 0f)
+        {
+            yield return new WaitForSeconds(attackCooldown);
+        }
+
+        canAttack = true;
         lastAttackTime = Time.time;
+
+        if (!isDead && !isStunned)
+        {
+            ChangeState(HasTarget() ? EnemyState.Chasing : EnemyState.Idle);
+        }
     }
 
     private void HandleFleeing()
@@ -826,6 +909,41 @@ public sealed class EnemyController : MonoBehaviour
         }
 
         isGrounded = groundSensor.State();
+    }
+
+
+    private IEnumerator HitStunRoutine(Vector2 hitDirection)
+    {
+        isStunned = true;
+        isAttacking = false;
+        canAttack = true;
+        StopHorizontalMovement();
+
+        if (knockbackForce > 0f && hitDirection.sqrMagnitude > Mathf.Epsilon)
+        {
+            Vector2 forceDirection = new Vector2(Mathf.Sign(hitDirection.x), 0.15f).normalized;
+            enemyRigidbody.linearVelocity = Vector2.zero;
+            enemyRigidbody.AddForce(forceDirection * knockbackForce, ForceMode2D.Impulse);
+        }
+
+        yield return new WaitForSeconds(hitStunDuration);
+
+        if (!isDead)
+        {
+            isStunned = false;
+            ChangeState(ShouldFlee() ? EnemyState.Fleeing : (HasPatrolRoute() && startPatrolling ? EnemyState.Patrolling : EnemyState.Idle));
+        }
+    }
+
+    private IEnumerator DisableAfterDeathRoutine()
+    {
+        foreach (Collider2D enemyCollider in enemyColliders)
+        {
+            enemyCollider.enabled = false;
+        }
+
+        yield return new WaitForSeconds(deathDisableDelay);
+        Destroy(gameObject);
     }
 
     private void UpdateAnimator()
