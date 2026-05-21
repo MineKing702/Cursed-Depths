@@ -163635,7 +163635,7 @@ Animator:
   m_GameObject: {fileID: 1169968802}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 2ac714e588ed04e22bafde4eeac890f0, type: 2}
+  m_Controller: {fileID: 9100000, guid: 05362bd1f1cb0954f994db815c2e61c0, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -163681,8 +163681,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.04063629, y: -0.0014792719}
-  m_Size: {x: 0.34757394, y: 0.53682095}
+  m_Offset: {x: 0.04063629, y: 0.0028240231}
+  m_Size: {x: 0.34757394, y: 0.52821434}
   m_Direction: 0
 --- !u!212 &1169968805
 SpriteRenderer:
@@ -163752,7 +163752,7 @@ Transform:
   m_GameObject: {fileID: 1169968802}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 6.6, y: -2.63, z: 0}
+  m_LocalPosition: {x: 6.6, y: -3.374, z: 0}
   m_LocalScale: {x: 3.18, y: 3.18, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -163807,19 +163807,23 @@ MonoBehaviour:
   wallJumpHorizontalSpeed: 2.5
   wallJumpForce: 6
   wallJumpCooldown: 0.35
-  attackCooldown: 1
-  attackDamage: 2
+  attackCooldown: 1.5
+  attackHitDelay: 0.5
+  attackAnimationDuration: 0.7
+  attackDamage: 4
   maxHealth: 15
   lowHealthPercentToFlee: 0.25
   canFlee: 1
-  hurtDuration: 0.25
+  hitStunDuration: 0.25
+  knockbackForce: 1.5
+  deathDisableDelay: 1.2
   patrolPointArrivalDistance: 0.15
   enemyHealth: {fileID: 0}
   driveAnimator: 1
   useBanditAnimatorParameters: 0
   stateParameterName: EnemyState
   speedParameterName: Speed
-  movingParameterName: IsMoving
+  movingParameterName: IsWalking
   groundedParameterName: Grounded
   verticalSpeedParameterName: VerticalSpeed
   attackTriggerName: Attack
@@ -174523,9 +174527,11 @@ MonoBehaviour:
   attackDamage: 4
   attackRange: 2
   attackHitDelay: 0.15
-  enemyLayer:
+  attackCooldown: 0.45
+  attackOffset: {x: 0.6, y: 0}
+  enemyLayerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 0
   attackOrigin: {fileID: 459467076}
   maxHealth: 20
   currentHealth: 0
@@ -174570,8 +174576,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.03952299, y: 0.640466}
-  m_Size: {x: 0.77353, y: 1.280932}
+  m_Offset: {x: 0.03952299, y: 0.66696596}
+  m_Size: {x: 0.77353, y: 1.227932}
   m_Direction: 0
 --- !u!1 &1244961990
 GameObject:
@@ -251257,7 +251263,9 @@ MonoBehaviour:
   attackDamage: 10
   attackRange: 1.25
   attackHitDelay: 0.15
-  enemyLayer:
+  attackCooldown: 0.45
+  attackOffset: {x: 0.6, y: 0}
+  enemyLayerMask:
     serializedVersion: 2
     m_Bits: 0
   attackOrigin: {fileID: 0}

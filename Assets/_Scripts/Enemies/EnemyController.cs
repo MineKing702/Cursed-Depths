@@ -48,9 +48,9 @@ public sealed class EnemyController : MonoBehaviour
     [SerializeField] private float wallJumpCooldown = 0.35f;
 
     [Header("Combat")]
-    [SerializeField] private float attackCooldown = 1f;
-    [SerializeField] private float attackHitDelay = 0.3f;
-    [SerializeField] private float attackStateDuration = 0.45f;
+    [SerializeField] private float attackCooldown = 0.3f;
+    [SerializeField] private float attackHitDelay = 0.25f;
+    [SerializeField] private float attackAnimationDuration = 0.7f;
     [SerializeField] private int attackDamage = 10;
     [SerializeField] private int maxHealth = 100;
     [SerializeField, Range(0f, 1f)] private float lowHealthPercentToFlee = 0.25f;
@@ -97,6 +97,7 @@ public sealed class EnemyController : MonoBehaviour
     private bool isDead;
     private bool isStunned;
     private bool isAttacking;
+    private bool canAttack = true;
     private Coroutine attackRoutine;
     private bool missingPlayerWarningLogged;
     private bool missingTargetHealthWarningLogged;
@@ -129,7 +130,7 @@ public sealed class EnemyController : MonoBehaviour
         attackDamage = Mathf.Max(0, attackDamage);
         attackCooldown = Mathf.Max(0f, attackCooldown);
         attackHitDelay = Mathf.Max(0f, attackHitDelay);
-        attackStateDuration = Mathf.Max(attackHitDelay, attackStateDuration);
+        attackAnimationDuration = Mathf.Max(attackHitDelay, attackAnimationDuration);
         detectionRange = Mathf.Max(0f, detectionRange);
         attackRange = Mathf.Max(0f, attackRange);
         loseInterestRange = Mathf.Max(detectionRange, loseInterestRange);
@@ -422,6 +423,7 @@ public sealed class EnemyController : MonoBehaviour
                 break;
             case EnemyState.Hurt:
                 isAttacking = false;
+                canAttack = true;
                 if (attackRoutine != null)
                 {
                     StopCoroutine(attackRoutine);
@@ -433,6 +435,7 @@ public sealed class EnemyController : MonoBehaviour
             case EnemyState.Dead:
                 isDead = true;
                 isAttacking = false;
+                canAttack = false;
                 if (attackRoutine != null)
                 {
                     StopCoroutine(attackRoutine);
@@ -511,19 +514,10 @@ public sealed class EnemyController : MonoBehaviour
 
     private void StartAttackSequence()
     {
-        if (isDead || isStunned || isAttacking)
+        if (isDead || isStunned || isAttacking || !canAttack)
         {
             return;
         }
-
-        if (Time.time < lastAttackTime + attackCooldown)
-        {
-            ChangeState(EnemyState.Chasing);
-            return;
-        }
-
-        isAttacking = true;
-        TriggerAnimator(attackTriggerName);
 
         if (attackRoutine != null)
         {
@@ -535,7 +529,16 @@ public sealed class EnemyController : MonoBehaviour
 
     private IEnumerator AttackRoutine()
     {
-        yield return new WaitForSeconds(attackHitDelay);
+        isAttacking = true;
+        canAttack = false;
+        StopHorizontalMovement();
+        TriggerAnimator(attackTriggerName);
+
+        float hitDelay = Mathf.Clamp(attackHitDelay, 0f, attackAnimationDuration);
+        if (hitDelay > 0f)
+        {
+            yield return new WaitForSeconds(hitDelay);
+        }
 
         if (!isDead && !isStunned && HasTarget())
         {
@@ -546,17 +549,24 @@ public sealed class EnemyController : MonoBehaviour
             }
         }
 
-        float remainingAttackLock = Mathf.Max(0f, attackStateDuration - attackHitDelay);
+        float remainingAttackLock = Mathf.Max(0f, attackAnimationDuration - hitDelay);
         if (remainingAttackLock > 0f)
         {
             yield return new WaitForSeconds(remainingAttackLock);
         }
 
         isAttacking = false;
-        lastAttackTime = Time.time;
         attackRoutine = null;
 
-        if (!isDead)
+        if (attackCooldown > 0f)
+        {
+            yield return new WaitForSeconds(attackCooldown);
+        }
+
+        canAttack = true;
+        lastAttackTime = Time.time;
+
+        if (!isDead && !isStunned)
         {
             ChangeState(HasTarget() ? EnemyState.Chasing : EnemyState.Idle);
         }
@@ -906,6 +916,7 @@ public sealed class EnemyController : MonoBehaviour
     {
         isStunned = true;
         isAttacking = false;
+        canAttack = true;
         StopHorizontalMovement();
 
         if (knockbackForce > 0f && hitDirection.sqrMagnitude > Mathf.Epsilon)
