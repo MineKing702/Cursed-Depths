@@ -213,7 +213,7 @@ public sealed class EnemyController : MonoBehaviour
     /// <param name="amount">The non-negative amount of damage to apply.</param>
     public void TakeDamage(int amount)
     {
-        Vector2 defaultHitDirection = (transform.position - GetTargetPosition()).normalized;
+        Vector2 defaultHitDirection = ((Vector2)transform.position - GetTargetPosition()).normalized;
         TakeDamage(amount, defaultHitDirection);
     }
 
