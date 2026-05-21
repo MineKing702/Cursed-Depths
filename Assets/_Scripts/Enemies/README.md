@@ -31,3 +31,39 @@ Animation setup:
 - Disable `Drive Animator` if an enemy prefab has its own animation script and should only use this component for AI movement/combat decisions.
 
 The controller checks whether each configured parameter exists before setting it, so missing optional parameters should not produce Animator errors.
+
+## Enemy Animator setup (step-by-step)
+
+1. Select your enemy prefab or scene GameObject.
+2. Add/verify components: `Rigidbody2D`, `Collider2D`, `Animator`, and `EnemyController`.
+3. In the Project window, create an Animator Controller at `Assets/Animations/Enemy/Enemy.controller`.
+4. Assign `Enemy.controller` to the enemy Animator's **Controller** field.
+5. In Animator parameters, add:
+   - `IsWalking` (Bool)
+   - `Attack` (Trigger)
+   - `Hurt` (Trigger)
+   - `Death` (Trigger)
+6. Create Animator states and assign clips:
+   - `Idle` -> idle clip
+   - `Walk` -> walk/run clip
+   - `Attack` -> attack clip
+   - `Hurt` -> hurt/take-hit clip
+   - `Death` -> death clip
+7. Set `Idle` as default.
+8. Create transitions:
+   - `Idle -> Walk` condition: `IsWalking == true`
+   - `Walk -> Idle` condition: `IsWalking == false`
+   - `Any State -> Attack` on `Attack` trigger
+   - `Any State -> Hurt` on `Hurt` trigger (no transition out of `Death`)
+   - `Any State -> Death` on `Death` trigger
+   - `Attack -> Idle` with **Has Exit Time** enabled
+   - `Hurt -> Idle` with **Has Exit Time** enabled
+   - `Death` has no exit transition
+9. For `Any State -> Attack` and `Any State -> Hurt`, set transition duration to 0 (or very low) for responsive reactions.
+10. In `EnemyController` inspector mapping:
+   - `Moving Parameter Name` = `IsWalking`
+   - `Attack Trigger Name` = `Attack`
+   - `Hurt Trigger Name` = `Hurt`
+   - `Death Trigger Name` = `Death`
+
+The controller already checks if parameters exist before writing to them, so missing optional parameters do not throw Animator parameter errors.
