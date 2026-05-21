@@ -19,8 +19,10 @@ public sealed class PlayerController : MonoBehaviour
     [Header("Combat")]
     [SerializeField] private int attackDamage = 10;
     [SerializeField] private float attackRange = 1.25f;
-    [SerializeField] private float attackHitDelay = 0.15f;
-    [SerializeField] private LayerMask enemyLayer;
+    [SerializeField] private float attackHitDelay = 0.3f;
+    [SerializeField] private float attackCooldown = 0.45f;
+    [SerializeField] private Vector2 attackOffset = new Vector2(0.6f, 0f);
+    [SerializeField] private LayerMask enemyLayerMask;
     [SerializeField] private Transform attackOrigin;
 
     [Header("Health")]
@@ -55,6 +57,7 @@ public sealed class PlayerController : MonoBehaviour
     private Coroutine attackCoroutine;
 
     private bool attackHitPending;
+    private float lastAttackTime = float.NegativeInfinity;
 
     private Vector3 startingPosition;
     private Quaternion startingRotation;
@@ -100,6 +103,7 @@ public sealed class PlayerController : MonoBehaviour
         attackDamage = Mathf.Max(0, attackDamage);
         attackRange = Mathf.Max(0f, attackRange);
         attackHitDelay = Mathf.Max(0f, attackHitDelay);
+        attackCooldown = Mathf.Max(0f, attackCooldown);
         invincibilityDuration = Mathf.Max(0f, invincibilityDuration);
         minimumFallDamageVelocity = Mathf.Max(0f, minimumFallDamageVelocity);
         fallDamageMultiplier = Mathf.Max(0f, fallDamageMultiplier);
@@ -253,7 +257,7 @@ public sealed class PlayerController : MonoBehaviour
 
     private void Attack()
     {
-        if (isDead || attackHitPending)
+        if (isDead || attackHitPending || Time.time < lastAttackTime + attackCooldown)
         {
             return;
         }
@@ -263,6 +267,7 @@ public sealed class PlayerController : MonoBehaviour
             playerAnimator.SetTrigger("Attack");
         }
 
+        lastAttackTime = Time.time;
         attackCoroutine = StartCoroutine(AttackHitRoutine());
     }
 
@@ -271,6 +276,13 @@ public sealed class PlayerController : MonoBehaviour
         attackHitPending = true;
 
         yield return new WaitForSeconds(attackHitDelay);
+
+        if (isDead)
+        {
+            attackHitPending = false;
+            attackCoroutine = null;
+            yield break;
+        }
 
         int damagedEnemyCount = ApplyMeleeDamage();
 
@@ -297,26 +309,39 @@ public sealed class PlayerController : MonoBehaviour
 
         Vector2 attackCenter = GetAttackCenter();
         float attackRadius = attackRange * 0.5f;
-        Collider2D[] hits = enemyLayer.value != 0
-            ? Physics2D.OverlapCircleAll(attackCenter, attackRadius, enemyLayer)
+        Collider2D[] hits = enemyLayerMask.value != 0
+            ? Physics2D.OverlapCircleAll(attackCenter, attackRadius, enemyLayerMask)
             : Physics2D.OverlapCircleAll(attackCenter, attackRadius);
-        HashSet<EnemyHealth> damagedEnemies = new HashSet<EnemyHealth>();
+        HashSet<object> damagedEnemies = new HashSet<object>();
 
         foreach (Collider2D hit in hits)
         {
-            EnemyHealth enemy = hit.GetComponent<EnemyHealth>();
-            if (enemy == null || damagedEnemies.Contains(enemy))
+            EnemyController enemyController = hit.GetComponentInParent<EnemyController>();
+            EnemyHealth enemyHealth = hit.GetComponentInParent<EnemyHealth>();
+
+            object enemyTarget = (object)enemyController ?? enemyHealth;
+            if (enemyTarget == null || damagedEnemies.Contains(enemyTarget))
             {
                 continue;
             }
 
-            if (!IsInFrontOfPlayer(enemy.transform.position))
+            Transform targetTransform = enemyController != null ? enemyController.transform : enemyHealth.transform;
+            if (!IsInFrontOfPlayer(targetTransform.position))
             {
                 continue;
             }
 
-            enemy.TakeDamage(attackDamage);
-            damagedEnemies.Add(enemy);
+            Vector2 hitDirection = ((Vector2)(targetTransform.position - transform.position)).normalized;
+            if (enemyController != null)
+            {
+                enemyController.TakeDamage(attackDamage, hitDirection);
+            }
+            else
+            {
+                enemyHealth.TakeDamage(attackDamage);
+            }
+
+            damagedEnemies.Add(enemyTarget);
         }
 
         return damagedEnemies.Count;
@@ -327,7 +352,8 @@ public sealed class PlayerController : MonoBehaviour
         Transform originTransform = attackOrigin != null ? attackOrigin : transform;
         Vector2 origin = originTransform.position;
         float facingDirection = transform.localScale.x >= 0f ? 1f : -1f;
-        return origin + Vector2.right * facingDirection * attackRange * 0.5f;
+        Vector2 directionalOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
+        return origin + directionalOffset;
     }
 
     private bool IsInFrontOfPlayer(Vector3 targetPosition)
