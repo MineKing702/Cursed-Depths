@@ -15,7 +15,7 @@ public sealed class DivergentSliceAbility : AbilityDefinition
 
     public override IEnumerator Execute(AbilityContext context)
     {
-        context.PerformMeleeHit(1f, 1f);
+        yield return context.PerformAnimatedBaseAttack();
 
         yield return new WaitForSeconds(followUpDelay);
 

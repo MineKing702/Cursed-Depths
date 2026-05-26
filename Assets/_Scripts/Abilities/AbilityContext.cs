@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public sealed class AbilityContext
@@ -12,6 +13,16 @@ public sealed class AbilityContext
     public PlayerAbilityController AbilityController { get; }
     public Transform PlayerTransform => Player != null ? Player.transform : null;
     public Vector2 FacingDirection => Player != null ? Player.GetFacingDirection() : Vector2.zero;
+
+    public IEnumerator PerformAnimatedBaseAttack()
+    {
+        if (Player == null)
+        {
+            yield break;
+        }
+
+        yield return Player.PerformAbilityAttackSequence();
+    }
 
     public int PerformMeleeHit(float damageMultiplier, float rangeMultiplier)
     {

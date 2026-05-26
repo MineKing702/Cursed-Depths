@@ -302,6 +302,30 @@ public sealed class PlayerController : MonoBehaviour
         attackCoroutine = null;
     }
 
+
+    public IEnumerator PerformAbilityAttackSequence()
+    {
+        if (isDead)
+        {
+            yield break;
+        }
+
+        if (HasAnimatorParameter("Attack"))
+        {
+            playerAnimator.SetTrigger("Attack");
+        }
+
+        lastAttackTime = Time.time;
+
+        yield return new WaitForSeconds(attackHitDelay);
+
+        if (isDead)
+        {
+            yield break;
+        }
+
+        ApplyMeleeDamage(attackDamage, 1f);
+    }
     public int PerformAbilityMeleeHit(float damageMultiplier = 1f, float rangeMultiplier = 1f)
     {
         if (isDead)
