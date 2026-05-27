@@ -1913,7 +1913,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -185589,6 +185589,7 @@ GameObject:
   - component: {fileID: 1318517879}
   - component: {fileID: 1318517880}
   - component: {fileID: 1318517881}
+  - component: {fileID: 1318517882}
   m_Layer: 0
   m_Name: Next Area Hole
   m_TagString: Untagged
@@ -185700,7 +185701,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -185716,6 +185717,21 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &1318517882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1318517878}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 221ee94db4c0ab642b11f079d456c939, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetSceneName: Area2
+  targetSpawnPointName: player spawn from area 1
+  playerTag: Player
 --- !u!1 &1319184274
 GameObject:
   m_ObjectHideFlags: 0
