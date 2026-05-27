@@ -135263,6 +135263,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1689866831511430, guid: 2e2183501755a214591e802f3aff33d2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1244034149}
+    - targetCorrespondingSourceObject: {fileID: 1689866831511430, guid: 2e2183501755a214591e802f3aff33d2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1244034153}
   m_SourcePrefab: {fileID: 100100000, guid: 2e2183501755a214591e802f3aff33d2, type: 3}
 --- !u!1 &964595565
 GameObject:
@@ -174541,6 +174544,7 @@ MonoBehaviour:
   maxFallDamage: 50
   respawnDelay: 2
   deathSmokeParticleCount: 16
+  abilityController: {fileID: 0}
   playerHealth: {fileID: 0}
 --- !u!70 &1244034149
 CapsuleCollider2D:
@@ -174579,6 +174583,22 @@ CapsuleCollider2D:
   m_Offset: {x: 0.03952299, y: 0.66696596}
   m_Size: {x: 0.77353, y: 1.227932}
   m_Direction: 0
+--- !u!114 &1244034153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1244034141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0766e3bc9f949144abfac05e6485f626, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAbilityController
+  player: {fileID: 0}
+  equippedAbility: {fileID: 11400000, guid: 13c272d68f90ced48b412c002488c550, type: 2}
+  equippedSlot: 0
+  vfxParent: {fileID: 0}
 --- !u!1 &1244961990
 GameObject:
   m_ObjectHideFlags: 0
@@ -251277,6 +251297,7 @@ MonoBehaviour:
   maxFallDamage: 50
   respawnDelay: 2
   deathSmokeParticleCount: 16
+  abilityController: {fileID: 0}
   playerHealth: {fileID: 0}
 --- !u!95 &1806250766
 Animator:

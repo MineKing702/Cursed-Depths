@@ -43,6 +43,7 @@ public sealed class PlayerController : MonoBehaviour
     private Rigidbody2D playerRigidbody;
     private Sensor_Bandit groundSensor;
     private PlayerSettings playerSettings;
+    [SerializeField] private PlayerAbilityController abilityController;
 
     private bool isGrounded;
     private bool combatIdle;
@@ -110,6 +111,11 @@ public sealed class PlayerController : MonoBehaviour
         maxFallDamage = Mathf.Max(0, maxFallDamage);
         respawnDelay = Mathf.Max(0f, respawnDelay);
         deathSmokeParticleCount = Mathf.Max(0, deathSmokeParticleCount);
+
+        if (abilityController == null)
+        {
+            abilityController = GetComponent<PlayerAbilityController>();
+        }
 
         SettingsManager settingsManager = SettingsManager.Instance;
         if (settingsManager != null)
@@ -194,11 +200,7 @@ public sealed class PlayerController : MonoBehaviour
 
     private void HandleActionsAndAnimations()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            TakeDamage(10);
-        }
-        else if (AttackWasPressed())
+        if (AttackWasPressed())
         {
             Attack();
         }
@@ -284,7 +286,7 @@ public sealed class PlayerController : MonoBehaviour
             yield break;
         }
 
-        int damagedEnemyCount = ApplyMeleeDamage();
+        int damagedEnemyCount = ApplyMeleeDamage(attackDamage, 1f);
 
         if (damagedEnemyCount > 0)
         {
@@ -300,15 +302,63 @@ public sealed class PlayerController : MonoBehaviour
         attackCoroutine = null;
     }
 
-    private int ApplyMeleeDamage()
+
+    public IEnumerator PerformAbilityAttackSequence()
     {
-        if (attackDamage <= 0 || attackRange <= 0f)
+        if (isDead)
+        {
+            yield break;
+        }
+
+        if (HasAnimatorParameter("Attack"))
+        {
+            playerAnimator.SetTrigger("Attack");
+        }
+
+        lastAttackTime = Time.time;
+
+        yield return new WaitForSeconds(attackHitDelay);
+
+        if (isDead)
+        {
+            yield break;
+        }
+
+        ApplyMeleeDamage(attackDamage, 1f);
+    }
+    public int PerformAbilityMeleeHit(float damageMultiplier = 1f, float rangeMultiplier = 1f)
+    {
+        if (isDead)
+        {
+            return 0;
+        }
+
+        int scaledDamage = Mathf.RoundToInt(attackDamage * Mathf.Max(0f, damageMultiplier));
+        return ApplyMeleeDamage(scaledDamage, rangeMultiplier);
+    }
+
+    public Vector2 GetAbilityAttackCenter(float rangeMultiplier = 1f)
+    {
+        return GetAttackCenter();
+    }
+
+    public Vector2 GetFacingDirection()
+    {
+        float facingDirection = transform.localScale.x >= 0f ? 1f : -1f;
+        return new Vector2(facingDirection, 0f);
+    }
+
+    public bool IsDead => isDead;
+
+    private int ApplyMeleeDamage(int damage, float rangeMultiplier)
+    {
+        if (damage <= 0 || attackRange <= 0f)
         {
             return 0;
         }
 
         Vector2 attackCenter = GetAttackCenter();
-        float attackRadius = attackRange * 0.5f;
+        float attackRadius = attackRange * Mathf.Max(0f, rangeMultiplier) * 0.5f;
         Collider2D[] hits = enemyLayerMask.value != 0
             ? Physics2D.OverlapCircleAll(attackCenter, attackRadius, enemyLayerMask)
             : Physics2D.OverlapCircleAll(attackCenter, attackRadius);
@@ -334,11 +384,11 @@ public sealed class PlayerController : MonoBehaviour
             Vector2 hitDirection = ((Vector2)(targetTransform.position - transform.position)).normalized;
             if (enemyController != null)
             {
-                enemyController.TakeDamage(attackDamage, hitDirection);
+                enemyController.TakeDamage(damage, hitDirection);
             }
             else
             {
-                enemyHealth.TakeDamage(attackDamage);
+                enemyHealth.TakeDamage(damage);
             }
 
             damagedEnemies.Add(enemyTarget);
