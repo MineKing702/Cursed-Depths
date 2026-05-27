@@ -1,0 +1,494 @@
+fileFormatVersion: 2
+guid: f65ddf6c3934aae41b1e2aebb4e721c4
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 6301261116565180273
+    second: Puzzle Room Key to Boss_0
+  - first:
+      213: -742838822076228461
+    second: Puzzle Room Key to Boss_1
+  - first:
+      213: -567446744043386800
+    second: Puzzle Room Key to Boss_2
+  - first:
+      213: 4155691372206757080
+    second: Puzzle Room Key to Boss_3
+  - first:
+      213: -3701349564319878166
+    second: Puzzle Room Key to Boss_4
+  - first:
+      213: -3977513476810697849
+    second: Puzzle Room Key to Boss_5
+  - first:
+      213: -1484691741992592184
+    second: Puzzle Room Key to Boss_6
+  - first:
+      213: 7432885233634734813
+    second: Puzzle Room Key to Boss_7
+  - first:
+      213: -7901263492342440040
+    second: Puzzle Room Key to Boss_8
+  - first:
+      213: -3763708657189052702
+    second: Puzzle Room Key to Boss_9
+  - first:
+      213: 5265386871382640813
+    second: Puzzle Room Key to Boss_10
+  - first:
+      213: 7200923562256348695
+    second: Puzzle Room Key to Boss_11
+  - first:
+      213: 4051032271558657279
+    second: Puzzle Room Key to Boss_12
+  - first:
+      213: -82900806268676522
+    second: Puzzle Room Key to Boss_13
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Puzzle Room Key to Boss_0
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 0
+        width: 228
+        height: 1024
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17f49d99993927750800000000000000
+      internalID: 6301261116565180273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Puzzle Room Key to Boss_1
+      rect:
+        serializedVersion: 2
+        x: 247
+        y: 0
+        width: 1280
+        height: 1024
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39cd6cce608e0b5f0800000000000000
+      internalID: -742838822076228461
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Puzzle Room Key to Boss_2
+      rect:
+        serializedVersion: 2
+        x: 1039
+        y: 959
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 058875851360028f0800000000000000
+      internalID: -567446744043386800
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Puzzle Room Key to Boss_3
+      rect:
+        serializedVersion: 2
+        x: 1088
+        y: 962
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d41a84094bfba930800000000000000
+      internalID: 4155691372206757080
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Puzzle Room Key to Boss_4
+      rect:
+        serializedVersion: 2
+        x: 1184
+        y: 965
+        width: 9
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae3ba2d8e2a22acc0800000000000000
+      internalID: -3701349564319878166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Puzzle Room Key to Boss_5
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 952
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7839e5d01980dc8c0800000000000000
+      internalID: -3977513476810697849
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Puzzle Room Key to Boss_6
+      rect:
+        serializedVersion: 2
+        x: 1238
+        y: 871
+        width: 6
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8cc53951ab0556be0800000000000000
+      internalID: -1484691741992592184
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Puzzle Room Key to Boss_7
+      rect:
+        serializedVersion: 2
+        x: 1238
+        y: 855
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd27b072db9e62760800000000000000
+      internalID: 7432885233634734813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Puzzle Room Key to Boss_8
+      rect:
+        serializedVersion: 2
+        x: 1255
+        y: 773
+        width: 10
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89f9a2667b2195290800000000000000
+      internalID: -7901263492342440040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Puzzle Room Key to Boss_9
+      rect:
+        serializedVersion: 2
+        x: 1249
+        y: 659
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ee1f22daee94cbc0800000000000000
+      internalID: -3763708657189052702
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Puzzle Room Key to Boss_10
+      rect:
+        serializedVersion: 2
+        x: 415
+        y: 135
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da884c95679621940800000000000000
+      internalID: 5265386871382640813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Puzzle Room Key to Boss_11
+      rect:
+        serializedVersion: 2
+        x: 426
+        y: 130
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 716b707e3d1dee360800000000000000
+      internalID: 7200923562256348695
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Puzzle Room Key to Boss_12
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 104
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff4c5ef3368283830800000000000000
+      internalID: 4051032271558657279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Puzzle Room Key to Boss_13
+      rect:
+        serializedVersion: 2
+        x: 1041
+        y: 39
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65613cae72a79def0800000000000000
+      internalID: -82900806268676522
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Puzzle Room Key to Boss_0: 6301261116565180273
+      Puzzle Room Key to Boss_1: -742838822076228461
+      Puzzle Room Key to Boss_10: 5265386871382640813
+      Puzzle Room Key to Boss_11: 7200923562256348695
+      Puzzle Room Key to Boss_12: 4051032271558657279
+      Puzzle Room Key to Boss_13: -82900806268676522
+      Puzzle Room Key to Boss_2: -567446744043386800
+      Puzzle Room Key to Boss_3: 4155691372206757080
+      Puzzle Room Key to Boss_4: -3701349564319878166
+      Puzzle Room Key to Boss_5: -3977513476810697849
+      Puzzle Room Key to Boss_6: -1484691741992592184
+      Puzzle Room Key to Boss_7: 7432885233634734813
+      Puzzle Room Key to Boss_8: -7901263492342440040
+      Puzzle Room Key to Boss_9: -3763708657189052702
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
