@@ -2,6 +2,8 @@
 
 **Cursed Depths** is a 2D Unity platformer/action game set inside a cursed cave system. The player explores underground areas, fights enemies, uses special abilities, interacts with menus and settings, and moves through multiple designed scenes such as the starting area, puzzle room, aura area, boss door, and boss battle.
 
+Related repository: [Cursed Depths Core](https://github.com/MineKing702/CursedDepths.core)
+
 This repository contains the main Unity project, including scenes, gameplay scripts, animations, sprites, UI assets, music, prefabs, and environment art.
 
 ## Team Members
@@ -14,6 +16,8 @@ This repository contains the main Unity project, including scenes, gameplay scri
 Cursed Depths was built as a final .NET/C# team project using Unity. The goal of the project was to create a playable game that demonstrates scene design, player movement, combat, enemy behavior, UI programming, settings management, animation, and asset integration.
 
 The game focuses on player exploration and combat inside a fantasy cave environment. The project includes multiple connected Unity scenes, custom scripts, enemy behavior, player health and respawn logic, an ability system, and a home/settings menu.
+
+
 
 ## How to Run the Project
 
