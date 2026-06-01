@@ -43,15 +43,15 @@ public sealed class PlayerController : MonoBehaviour
     private Rigidbody2D playerRigidbody;
     private Sensor_Bandit groundSensor;
     private PlayerSettings playerSettings;
-    [SerializeField] private PlayerAbilityController abilityController;
-
     private bool isGrounded;
     private bool combatIdle;
     private bool isDead;
     private bool isInvincible;
+    private bool controlEnabled = true;
 
     private float horizontalInput;
     private float maxFallSpeed;
+    private float currentFacingDirection = 1f;
 
     private Coroutine invincibilityCoroutine;
     private Coroutine deathCoroutine;
@@ -112,11 +112,6 @@ public sealed class PlayerController : MonoBehaviour
         respawnDelay = Mathf.Max(0f, respawnDelay);
         deathSmokeParticleCount = Mathf.Max(0, deathSmokeParticleCount);
 
-        if (abilityController == null)
-        {
-            abilityController = GetComponent<PlayerAbilityController>();
-        }
-
         SettingsManager settingsManager = SettingsManager.Instance;
         if (settingsManager != null)
         {
@@ -136,6 +131,20 @@ public sealed class PlayerController : MonoBehaviour
         }
 
         UpdateGroundedState();
+
+        if (!controlEnabled)
+        {
+            horizontalInput = 0f;
+            playerRigidbody.linearVelocity = new Vector2(0f, playerRigidbody.linearVelocity.y);
+
+            if (HasAnimatorParameter("AirSpeed"))
+            {
+                playerAnimator.SetFloat("AirSpeed", playerRigidbody.linearVelocity.y);
+            }
+
+            SetAnimState(0);
+            return;
+        }
 
         horizontalInput = ReadHorizontalInput();
 
@@ -302,53 +311,67 @@ public sealed class PlayerController : MonoBehaviour
         attackCoroutine = null;
     }
 
-
-    public IEnumerator PerformAbilityAttackSequence()
-    {
-        if (isDead)
-        {
-            yield break;
-        }
-
-        if (HasAnimatorParameter("Attack"))
-        {
-            playerAnimator.SetTrigger("Attack");
-        }
-
-        lastAttackTime = Time.time;
-
-        yield return new WaitForSeconds(attackHitDelay);
-
-        if (isDead)
-        {
-            yield break;
-        }
-
-        ApplyMeleeDamage(attackDamage, 1f);
-    }
-    public int PerformAbilityMeleeHit(float damageMultiplier = 1f, float rangeMultiplier = 1f)
-    {
-        if (isDead)
-        {
-            return 0;
-        }
-
-        int scaledDamage = Mathf.RoundToInt(attackDamage * Mathf.Max(0f, damageMultiplier));
-        return ApplyMeleeDamage(scaledDamage, rangeMultiplier);
-    }
-
-    public Vector2 GetAbilityAttackCenter(float rangeMultiplier = 1f)
-    {
-        return GetAttackCenter();
-    }
-
     public Vector2 GetFacingDirection()
     {
-        float facingDirection = transform.localScale.x >= 0f ? 1f : -1f;
-        return new Vector2(facingDirection, 0f);
+        return new Vector2(currentFacingDirection, 0f);
     }
 
     public bool IsDead => isDead;
+
+    public void SetControlEnabled(bool enabled)
+    {
+        controlEnabled = enabled;
+        horizontalInput = 0f;
+
+        if (!enabled && playerRigidbody != null)
+        {
+            playerRigidbody.linearVelocity = new Vector2(0f, playerRigidbody.linearVelocity.y);
+        }
+
+        if (!enabled && playerAnimator != null)
+        {
+            SetAnimState(0);
+        }
+    }
+
+    public void SetRespawnPoint(Vector3 position, Quaternion rotation)
+    {
+        startingPosition = position;
+        startingRotation = rotation;
+
+        GameObject mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+        if (mainCamera != null)
+        {
+            cameraStartPos = mainCamera.transform.position;
+        }
+    }
+
+    public void SetFacingScales(Vector3 rightScale, Vector3 leftScale, bool faceRight)
+    {
+        rightFacingScale = rightScale;
+        leftFacingScale = leftScale;
+        currentFacingDirection = faceRight ? 1f : -1f;
+        transform.localScale = faceRight ? rightFacingScale : leftFacingScale;
+    }
+
+    public void SetMovementSettings(float newSpeed, float newJumpForce)
+    {
+        speed = Mathf.Max(0f, newSpeed);
+        jumpForce = Mathf.Max(0f, newJumpForce);
+    }
+
+    public void SetSpriteSortingOrder(int sortingOrder)
+    {
+        if (spriteRenderers == null || spriteRenderers.Length == 0)
+        {
+            spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+        }
+
+        foreach (SpriteRenderer spriteRenderer in spriteRenderers)
+        {
+            spriteRenderer.sortingOrder = sortingOrder;
+        }
+    }
 
     private int ApplyMeleeDamage(int damage, float rangeMultiplier)
     {
@@ -401,8 +424,7 @@ public sealed class PlayerController : MonoBehaviour
     {
         Transform originTransform = attackOrigin != null ? attackOrigin : transform;
         Vector2 origin = originTransform.position;
-        float facingDirection = transform.localScale.x >= 0f ? 1f : -1f;
-        Vector2 directionalOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
+        Vector2 directionalOffset = new Vector2(attackOffset.x * currentFacingDirection, attackOffset.y);
         return origin + directionalOffset;
     }
 
@@ -410,8 +432,7 @@ public sealed class PlayerController : MonoBehaviour
     {
         Transform originTransform = attackOrigin != null ? attackOrigin : transform;
         Vector2 toTarget = (Vector2)(targetPosition - originTransform.position);
-        float facingDirection = transform.localScale.x >= 0f ? 1f : -1f;
-        return toTarget.x * facingDirection >= -0.01f;
+        return toTarget.x * currentFacingDirection >= -0.01f;
     }
 
     private float ReadHorizontalInput()
@@ -460,10 +481,12 @@ public sealed class PlayerController : MonoBehaviour
     {
         if (input > 0f)
         {
+            currentFacingDirection = 1f;
             transform.localScale = rightFacingScale;
         }
         else if (input < 0f)
         {
+            currentFacingDirection = -1f;
             transform.localScale = leftFacingScale;
         }
     }
@@ -577,6 +600,7 @@ public sealed class PlayerController : MonoBehaviour
     {
         transform.position = startingPosition;
         transform.rotation = startingRotation;
+        currentFacingDirection = 1f;
         transform.localScale = rightFacingScale;
 
         GameObject mainCamera = GameObject.FindGameObjectWithTag("MainCamera");

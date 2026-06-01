@@ -6,10 +6,26 @@ public class CameraMovement : MonoBehaviour
 
     // How far the player can move from the camera before it shifts
     public float horizontalThreshold = 5f;
-    public float lowerThreshold = 3.5f;
+    public float lowerThreshold = 2.75f;
+
+    public void SetTarget(Transform target)
+    {
+        player = target;
+    }
+
+    private void Awake()
+    {
+        FindPlayerIfMissing();
+    }
 
     void Update()
     {
+        FindPlayerIfMissing();
+        if (player == null)
+        {
+            return;
+        }
+
         Vector3 camPos = transform.position;
 
         // Player is too far right
@@ -32,5 +48,19 @@ public class CameraMovement : MonoBehaviour
 
         // Instantly move camera
         transform.position = camPos;
+    }
+
+    private void FindPlayerIfMissing()
+    {
+        if (player != null)
+        {
+            return;
+        }
+
+        PlayerController playerController = FindFirstObjectByType<PlayerController>();
+        if (playerController != null)
+        {
+            player = playerController.transform;
+        }
     }
 }

@@ -11,13 +11,13 @@ public static class RuntimeBootstrapper
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     public static void Bootstrap()
     {
-        if (SettingsManager.Instance != null)
+        if (SettingsManager.Instance == null)
         {
-            return;
+            GameObject settingsManagerObject = new GameObject("SettingsManager");
+            settingsManagerObject.tag = "SettingsManager";
+            settingsManagerObject.AddComponent<SettingsManager>();
         }
 
-        GameObject settingsManagerObject = new GameObject("SettingsManager");
-        settingsManagerObject.tag = "SettingsManager";
-        settingsManagerObject.AddComponent<SettingsManager>();
+        _ = SceneTransitionManager.Instance;
     }
 }
