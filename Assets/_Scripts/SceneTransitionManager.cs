@@ -91,8 +91,8 @@ public sealed class SceneTransitionManager : MonoBehaviour
 
         if (player != null)
         {
-            MovePlayerToSpawn(player, targetSpawnId);
-            ReconnectCameraToPlayer(player.transform);
+            SceneSpawnPoint spawnPoint = MovePlayerToSpawn(player, targetSpawnId);
+            ReconnectCameraToPlayer(player.transform, spawnPoint);
         }
 
         yield return screenFader.FadeIn(fadeDuration);
@@ -105,9 +105,11 @@ public sealed class SceneTransitionManager : MonoBehaviour
         isTransitioning = false;
     }
 
-    private void MovePlayerToSpawn(PlayerController player, string targetSpawnId)
+    private SceneSpawnPoint MovePlayerToSpawn(PlayerController player, string targetSpawnId)
     {
-        Transform spawnTransform = FindSpawnPoint(targetSpawnId);
+        Transform spawnTransform = FindSpawnTransform(targetSpawnId);
+        SceneSpawnPoint spawnPoint = spawnTransform != null ? spawnTransform.GetComponent<SceneSpawnPoint>() : null;
+
         if (spawnTransform == null)
         {
             Debug.LogWarning($"Scene transition could not find spawn point '{targetSpawnId}'. Player was left at the loaded scene origin fallback.", this);
@@ -116,6 +118,11 @@ public sealed class SceneTransitionManager : MonoBehaviour
         else
         {
             player.transform.SetPositionAndRotation(spawnTransform.position, spawnTransform.rotation);
+
+            if (spawnPoint != null)
+            {
+                ApplySpawnPointPlayerOverrides(player, spawnPoint);
+            }
         }
 
         Rigidbody2D playerRigidbody = player.GetComponent<Rigidbody2D>();
@@ -126,9 +133,10 @@ public sealed class SceneTransitionManager : MonoBehaviour
         }
 
         player.SetRespawnPoint(player.transform.position, player.transform.rotation);
+        return spawnPoint;
     }
 
-    private Transform FindSpawnPoint(string targetSpawnId)
+    private Transform FindSpawnTransform(string targetSpawnId)
     {
         SceneSpawnPoint[] spawnPoints = FindObjectsByType<SceneSpawnPoint>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (SceneSpawnPoint spawnPoint in spawnPoints)
@@ -143,12 +151,30 @@ public sealed class SceneTransitionManager : MonoBehaviour
         return namedSpawn != null ? namedSpawn.transform : null;
     }
 
-    private void ReconnectCameraToPlayer(Transform playerTransform)
+    private static void ApplySpawnPointPlayerOverrides(PlayerController player, SceneSpawnPoint spawnPoint)
+    {
+        if (spawnPoint.OverridePlayerFacingScales)
+        {
+            player.SetFacingScales(spawnPoint.RightFacingScale, spawnPoint.LeftFacingScale, spawnPoint.FaceRightOnSpawn);
+        }
+
+        if (spawnPoint.OverridePlayerSortingOrder)
+        {
+            player.SetSpriteSortingOrder(spawnPoint.PlayerSortingOrder);
+        }
+    }
+
+    private void ReconnectCameraToPlayer(Transform playerTransform, SceneSpawnPoint spawnPoint)
     {
         Camera mainCamera = Camera.main;
         if (mainCamera == null)
         {
             return;
+        }
+
+        if (spawnPoint != null && spawnPoint.OverrideCameraOrthographicSize && mainCamera.orthographic)
+        {
+            mainCamera.orthographicSize = spawnPoint.CameraOrthographicSize;
         }
 
         CameraMovement cameraMovement = mainCamera.GetComponent<CameraMovement>();

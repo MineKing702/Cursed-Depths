@@ -51,6 +51,7 @@ public sealed class PlayerController : MonoBehaviour
 
     private float horizontalInput;
     private float maxFallSpeed;
+    private float currentFacingDirection = 1f;
 
     private Coroutine invincibilityCoroutine;
     private Coroutine deathCoroutine;
@@ -312,8 +313,7 @@ public sealed class PlayerController : MonoBehaviour
 
     public Vector2 GetFacingDirection()
     {
-        float facingDirection = transform.localScale.x >= 0f ? 1f : -1f;
-        return new Vector2(facingDirection, 0f);
+        return new Vector2(currentFacingDirection, 0f);
     }
 
     public bool IsDead => isDead;
@@ -343,6 +343,27 @@ public sealed class PlayerController : MonoBehaviour
         if (mainCamera != null)
         {
             cameraStartPos = mainCamera.transform.position;
+        }
+    }
+
+    public void SetFacingScales(Vector3 rightScale, Vector3 leftScale, bool faceRight)
+    {
+        rightFacingScale = rightScale;
+        leftFacingScale = leftScale;
+        currentFacingDirection = faceRight ? 1f : -1f;
+        transform.localScale = faceRight ? rightFacingScale : leftFacingScale;
+    }
+
+    public void SetSpriteSortingOrder(int sortingOrder)
+    {
+        if (spriteRenderers == null || spriteRenderers.Length == 0)
+        {
+            spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+        }
+
+        foreach (SpriteRenderer spriteRenderer in spriteRenderers)
+        {
+            spriteRenderer.sortingOrder = sortingOrder;
         }
     }
 
@@ -397,8 +418,7 @@ public sealed class PlayerController : MonoBehaviour
     {
         Transform originTransform = attackOrigin != null ? attackOrigin : transform;
         Vector2 origin = originTransform.position;
-        float facingDirection = transform.localScale.x >= 0f ? 1f : -1f;
-        Vector2 directionalOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
+        Vector2 directionalOffset = new Vector2(attackOffset.x * currentFacingDirection, attackOffset.y);
         return origin + directionalOffset;
     }
 
@@ -406,8 +426,7 @@ public sealed class PlayerController : MonoBehaviour
     {
         Transform originTransform = attackOrigin != null ? attackOrigin : transform;
         Vector2 toTarget = (Vector2)(targetPosition - originTransform.position);
-        float facingDirection = transform.localScale.x >= 0f ? 1f : -1f;
-        return toTarget.x * facingDirection >= -0.01f;
+        return toTarget.x * currentFacingDirection >= -0.01f;
     }
 
     private float ReadHorizontalInput()
@@ -456,10 +475,12 @@ public sealed class PlayerController : MonoBehaviour
     {
         if (input > 0f)
         {
+            currentFacingDirection = 1f;
             transform.localScale = rightFacingScale;
         }
         else if (input < 0f)
         {
+            currentFacingDirection = -1f;
             transform.localScale = leftFacingScale;
         }
     }
@@ -573,6 +594,7 @@ public sealed class PlayerController : MonoBehaviour
     {
         transform.position = startingPosition;
         transform.rotation = startingRotation;
+        currentFacingDirection = 1f;
         transform.localScale = rightFacingScale;
 
         GameObject mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
