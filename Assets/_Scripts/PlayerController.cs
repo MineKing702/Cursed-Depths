@@ -43,12 +43,11 @@ public sealed class PlayerController : MonoBehaviour
     private Rigidbody2D playerRigidbody;
     private Sensor_Bandit groundSensor;
     private PlayerSettings playerSettings;
-    [SerializeField] private PlayerAbilityController abilityController;
-
     private bool isGrounded;
     private bool combatIdle;
     private bool isDead;
     private bool isInvincible;
+    private bool controlEnabled = true;
 
     private float horizontalInput;
     private float maxFallSpeed;
@@ -112,11 +111,6 @@ public sealed class PlayerController : MonoBehaviour
         respawnDelay = Mathf.Max(0f, respawnDelay);
         deathSmokeParticleCount = Mathf.Max(0, deathSmokeParticleCount);
 
-        if (abilityController == null)
-        {
-            abilityController = GetComponent<PlayerAbilityController>();
-        }
-
         SettingsManager settingsManager = SettingsManager.Instance;
         if (settingsManager != null)
         {
@@ -136,6 +130,20 @@ public sealed class PlayerController : MonoBehaviour
         }
 
         UpdateGroundedState();
+
+        if (!controlEnabled)
+        {
+            horizontalInput = 0f;
+            playerRigidbody.linearVelocity = new Vector2(0f, playerRigidbody.linearVelocity.y);
+
+            if (HasAnimatorParameter("AirSpeed"))
+            {
+                playerAnimator.SetFloat("AirSpeed", playerRigidbody.linearVelocity.y);
+            }
+
+            SetAnimState(0);
+            return;
+        }
 
         horizontalInput = ReadHorizontalInput();
 
@@ -302,46 +310,6 @@ public sealed class PlayerController : MonoBehaviour
         attackCoroutine = null;
     }
 
-
-    public IEnumerator PerformAbilityAttackSequence()
-    {
-        if (isDead)
-        {
-            yield break;
-        }
-
-        if (HasAnimatorParameter("Attack"))
-        {
-            playerAnimator.SetTrigger("Attack");
-        }
-
-        lastAttackTime = Time.time;
-
-        yield return new WaitForSeconds(attackHitDelay);
-
-        if (isDead)
-        {
-            yield break;
-        }
-
-        ApplyMeleeDamage(attackDamage, 1f);
-    }
-    public int PerformAbilityMeleeHit(float damageMultiplier = 1f, float rangeMultiplier = 1f)
-    {
-        if (isDead)
-        {
-            return 0;
-        }
-
-        int scaledDamage = Mathf.RoundToInt(attackDamage * Mathf.Max(0f, damageMultiplier));
-        return ApplyMeleeDamage(scaledDamage, rangeMultiplier);
-    }
-
-    public Vector2 GetAbilityAttackCenter(float rangeMultiplier = 1f)
-    {
-        return GetAttackCenter();
-    }
-
     public Vector2 GetFacingDirection()
     {
         float facingDirection = transform.localScale.x >= 0f ? 1f : -1f;
@@ -349,6 +317,34 @@ public sealed class PlayerController : MonoBehaviour
     }
 
     public bool IsDead => isDead;
+
+    public void SetControlEnabled(bool enabled)
+    {
+        controlEnabled = enabled;
+        horizontalInput = 0f;
+
+        if (!enabled && playerRigidbody != null)
+        {
+            playerRigidbody.linearVelocity = new Vector2(0f, playerRigidbody.linearVelocity.y);
+        }
+
+        if (!enabled && playerAnimator != null)
+        {
+            SetAnimState(0);
+        }
+    }
+
+    public void SetRespawnPoint(Vector3 position, Quaternion rotation)
+    {
+        startingPosition = position;
+        startingRotation = rotation;
+
+        GameObject mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+        if (mainCamera != null)
+        {
+            cameraStartPos = mainCamera.transform.position;
+        }
+    }
 
     private int ApplyMeleeDamage(int damage, float rangeMultiplier)
     {

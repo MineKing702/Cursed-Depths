@@ -135263,9 +135263,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1689866831511430, guid: 2e2183501755a214591e802f3aff33d2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1244034149}
-    - targetCorrespondingSourceObject: {fileID: 1689866831511430, guid: 2e2183501755a214591e802f3aff33d2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1244034153}
   m_SourcePrefab: {fileID: 100100000, guid: 2e2183501755a214591e802f3aff33d2, type: 3}
 --- !u!1 &964595565
 GameObject:
@@ -174544,7 +174541,6 @@ MonoBehaviour:
   maxFallDamage: 50
   respawnDelay: 2
   deathSmokeParticleCount: 16
-  abilityController: {fileID: 0}
   playerHealth: {fileID: 0}
 --- !u!70 &1244034149
 CapsuleCollider2D:
@@ -174583,22 +174579,6 @@ CapsuleCollider2D:
   m_Offset: {x: 0.03952299, y: 0.66696596}
   m_Size: {x: 0.77353, y: 1.227932}
   m_Direction: 0
---- !u!114 &1244034153
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1244034141}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0766e3bc9f949144abfac05e6485f626, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerAbilityController
-  player: {fileID: 0}
-  equippedAbility: {fileID: 11400000, guid: 13c272d68f90ced48b412c002488c550, type: 2}
-  equippedSlot: 0
-  vfxParent: {fileID: 0}
 --- !u!1 &1244961990
 GameObject:
   m_ObjectHideFlags: 0
@@ -251297,7 +251277,6 @@ MonoBehaviour:
   maxFallDamage: 50
   respawnDelay: 2
   deathSmokeParticleCount: 16
-  abilityController: {fileID: 0}
   playerHealth: {fileID: 0}
 --- !u!95 &1806250766
 Animator:
@@ -265233,6 +265212,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1910527312}
   - component: {fileID: 1910527313}
+  - component: {fileID: 1910527314}
   m_Layer: 0
   m_Name: Pit Bottom
   m_TagString: Ground
@@ -265333,7 +265313,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -265349,6 +265329,21 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.9831028, y: 0.3155172}
   m_EdgeRadius: 0
+--- !u!114 &1910527314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1910527311}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 950399c8aa4446d883b8ee671cdf7476, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::SceneTransitionTrigger
+  targetSceneName: Area2
+  targetSpawnId: Area2PlayerSpawn
+  triggerOnce: 1
 --- !u!1 &1910738110
 GameObject:
   m_ObjectHideFlags: 0
