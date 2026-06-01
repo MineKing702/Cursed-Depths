@@ -35,6 +35,9 @@ public sealed class PlayerController : MonoBehaviour
     [SerializeField] private float fallDamageMultiplier = 5f;
     [SerializeField] private int maxFallDamage = 50;
 
+    [Header("Ladder Climbing")]
+    [SerializeField] private float climbSpeed = 3.5f;
+
     [Header("Death / Respawn")]
     [SerializeField] private float respawnDelay = 2f;
     [SerializeField] private int deathSmokeParticleCount = 16;
@@ -52,6 +55,10 @@ public sealed class PlayerController : MonoBehaviour
     private float horizontalInput;
     private float maxFallSpeed;
     private float currentFacingDirection = 1f;
+    private bool isTouchingLadder;
+    private bool isClimbing;
+    private float originalGravityScale;
+    private float verticalInput;
 
     private Coroutine invincibilityCoroutine;
     private Coroutine deathCoroutine;
@@ -74,6 +81,7 @@ public sealed class PlayerController : MonoBehaviour
     {
         playerAnimator = GetComponent<Animator>();
         playerRigidbody = GetComponent<Rigidbody2D>();
+        originalGravityScale = playerRigidbody.gravityScale;
 
         Transform groundSensorTransform = transform.Find("GroundSensor");
         if (groundSensorTransform != null)
@@ -109,6 +117,7 @@ public sealed class PlayerController : MonoBehaviour
         minimumFallDamageVelocity = Mathf.Max(0f, minimumFallDamageVelocity);
         fallDamageMultiplier = Mathf.Max(0f, fallDamageMultiplier);
         maxFallDamage = Mathf.Max(0, maxFallDamage);
+        climbSpeed = Mathf.Max(0f, climbSpeed);
         respawnDelay = Mathf.Max(0f, respawnDelay);
         deathSmokeParticleCount = Mathf.Max(0, deathSmokeParticleCount);
 
@@ -135,6 +144,9 @@ public sealed class PlayerController : MonoBehaviour
         if (!controlEnabled)
         {
             horizontalInput = 0f;
+            verticalInput = 0f;
+            StopClimbing();
+            playerRigidbody.gravityScale = originalGravityScale;
             playerRigidbody.linearVelocity = new Vector2(0f, playerRigidbody.linearVelocity.y);
 
             if (HasAnimatorParameter("AirSpeed"))
@@ -147,15 +159,27 @@ public sealed class PlayerController : MonoBehaviour
         }
 
         horizontalInput = ReadHorizontalInput();
+        verticalInput = ReadVerticalInput();
 
+        UpdateClimbingState();
         UpdateFacingDirection(horizontalInput);
 
-        playerRigidbody.linearVelocity = new Vector2(
-            horizontalInput * speed,
-            playerRigidbody.linearVelocity.y
-        );
+        if (isClimbing)
+        {
+            playerRigidbody.linearVelocity = new Vector2(
+                horizontalInput * speed,
+                verticalInput * climbSpeed
+            );
+        }
+        else
+        {
+            playerRigidbody.linearVelocity = new Vector2(
+                horizontalInput * speed,
+                playerRigidbody.linearVelocity.y
+            );
+        }
 
-        if (!isGrounded)
+        if (!isGrounded && !isClimbing)
         {
             maxFallSpeed = Mathf.Max(maxFallSpeed, -playerRigidbody.linearVelocity.y);
         }
@@ -217,9 +241,13 @@ public sealed class PlayerController : MonoBehaviour
         {
             combatIdle = !combatIdle;
         }
-        else if (JumpWasPressed() && isGrounded)
+        else if (JumpWasPressed() && (isGrounded || isClimbing))
         {
             Jump();
+        }
+        else if (isClimbing && Mathf.Abs(verticalInput) > Mathf.Epsilon)
+        {
+            SetAnimState(2);
         }
         else if (Mathf.Abs(horizontalInput) > Mathf.Epsilon)
         {
@@ -237,10 +265,12 @@ public sealed class PlayerController : MonoBehaviour
 
     public void Jump()
     {
-        if (isDead || !isGrounded)
+        if (isDead || (!isGrounded && !isClimbing))
         {
             return;
         }
+
+        StopClimbing();
 
         if (HasAnimatorParameter("Jump"))
         {
@@ -325,6 +355,9 @@ public sealed class PlayerController : MonoBehaviour
 
         if (!enabled && playerRigidbody != null)
         {
+            verticalInput = 0f;
+            StopClimbing();
+            playerRigidbody.gravityScale = originalGravityScale;
             playerRigidbody.linearVelocity = new Vector2(0f, playerRigidbody.linearVelocity.y);
         }
 
@@ -455,6 +488,64 @@ public sealed class PlayerController : MonoBehaviour
         return Input.GetAxis("Horizontal");
     }
 
+    private float ReadVerticalInput()
+    {
+        float input = 0f;
+
+        if (Input.GetKey(KeyCode.W))
+        {
+            input += 1f;
+        }
+
+        if (Input.GetKey(KeyCode.S))
+        {
+            input -= 1f;
+        }
+
+        return input;
+    }
+
+    private void UpdateClimbingState()
+    {
+        if (isTouchingLadder && Mathf.Abs(verticalInput) > Mathf.Epsilon)
+        {
+            StartClimbing();
+        }
+
+        if (!isTouchingLadder)
+        {
+            StopClimbing();
+        }
+    }
+
+    private void StartClimbing()
+    {
+        isClimbing = true;
+        playerRigidbody.gravityScale = 0f;
+        maxFallSpeed = 0f;
+
+        if (HasAnimatorParameter("Grounded"))
+        {
+            playerAnimator.SetBool("Grounded", true);
+        }
+    }
+
+    private void StopClimbing()
+    {
+        if (!isClimbing)
+        {
+            return;
+        }
+
+        isClimbing = false;
+        playerRigidbody.gravityScale = originalGravityScale;
+
+        if (HasAnimatorParameter("Grounded"))
+        {
+            playerAnimator.SetBool("Grounded", isGrounded);
+        }
+    }
+
     private bool JumpWasPressed()
     {
         if (playerSettings != null)
@@ -544,6 +635,9 @@ public sealed class PlayerController : MonoBehaviour
         isDead = true;
         isInvincible = false;
         horizontalInput = 0f;
+        verticalInput = 0f;
+        StopClimbing();
+        playerRigidbody.gravityScale = originalGravityScale;
         playerRigidbody.linearVelocity = Vector2.zero;
 
         if (attackCoroutine != null)
@@ -611,12 +705,16 @@ public sealed class PlayerController : MonoBehaviour
 
         currentHealth = maxHealth;
         horizontalInput = 0f;
+        verticalInput = 0f;
         maxFallSpeed = 0f;
         isGrounded = false;
+        isTouchingLadder = false;
+        StopClimbing();
         isInvincible = false;
         combatIdle = false;
 
         playerRigidbody.simulated = true;
+        playerRigidbody.gravityScale = originalGravityScale;
         playerRigidbody.linearVelocity = Vector2.zero;
 
         SetPlayerCollidersEnabled(true);
@@ -741,6 +839,41 @@ public sealed class PlayerController : MonoBehaviour
 
         return false;
     }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Ladder"))
+        {
+            isTouchingLadder = true;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Ladder"))
+        {
+            isTouchingLadder = false;
+            StopClimbing();
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ladder"))
+        {
+            isTouchingLadder = true;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ladder"))
+        {
+            isTouchingLadder = false;
+            StopClimbing();
+        }
+    }
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
