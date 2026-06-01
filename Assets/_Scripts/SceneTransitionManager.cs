@@ -158,6 +158,11 @@ public sealed class SceneTransitionManager : MonoBehaviour
             player.SetFacingScales(spawnPoint.RightFacingScale, spawnPoint.LeftFacingScale, spawnPoint.FaceRightOnSpawn);
         }
 
+        if (spawnPoint.OverridePlayerMovement)
+        {
+            player.SetMovementSettings(spawnPoint.PlayerSpeed, spawnPoint.PlayerJumpForce);
+        }
+
         if (spawnPoint.OverridePlayerSortingOrder)
         {
             player.SetSpriteSortingOrder(spawnPoint.PlayerSortingOrder);
@@ -176,6 +181,12 @@ public sealed class SceneTransitionManager : MonoBehaviour
         {
             mainCamera.orthographicSize = spawnPoint.CameraOrthographicSize;
         }
+
+        mainCamera.transform.position = new Vector3(
+            playerTransform.position.x,
+            playerTransform.position.y,
+            mainCamera.transform.position.z
+        );
 
         CameraMovement cameraMovement = mainCamera.GetComponent<CameraMovement>();
         if (cameraMovement == null)

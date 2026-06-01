@@ -354,6 +354,12 @@ public sealed class PlayerController : MonoBehaviour
         transform.localScale = faceRight ? rightFacingScale : leftFacingScale;
     }
 
+    public void SetMovementSettings(float newSpeed, float newJumpForce)
+    {
+        speed = Mathf.Max(0f, newSpeed);
+        jumpForce = Mathf.Max(0f, newJumpForce);
+    }
+
     public void SetSpriteSortingOrder(int sortingOrder)
     {
         if (spriteRenderers == null || spriteRenderers.Length == 0)
