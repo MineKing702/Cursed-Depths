@@ -95099,7 +95099,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 1244034147}
   horizontalThreshold: 5
-  lowerThreshold: 3.5
+  lowerThreshold: 2.75
 --- !u!1 &690846497
 GameObject:
   m_ObjectHideFlags: 0

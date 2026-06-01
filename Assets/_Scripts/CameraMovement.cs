@@ -6,7 +6,7 @@ public class CameraMovement : MonoBehaviour
 
     // How far the player can move from the camera before it shifts
     public float horizontalThreshold = 5f;
-    public float lowerThreshold = 3.5f;
+    public float lowerThreshold = 2.75f;
 
     public void SetTarget(Transform target)
     {

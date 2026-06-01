@@ -27418,12 +27418,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SceneSpawnPoint
   spawnId: Area2PlayerSpawn
   overridePlayerFacingScales: 1
-  rightFacingScale: {x: -0.7, y: 0.7, z: 1}
-  leftFacingScale: {x: 0.7, y: 0.7, z: 1}
+  rightFacingScale: {x: -0.8, y: 0.8, z: 1}
+  leftFacingScale: {x: 0.8, y: 0.8, z: 1}
   faceRightOnSpawn: 1
   overridePlayerMovement: 1
-  playerSpeed: 2
-  playerJumpForce: 3.75
+  playerSpeed: 2.25
+  playerJumpForce: 4.25
   overridePlayerSortingOrder: 1
   playerSortingOrder: 100
   overrideCameraOrthographicSize: 1

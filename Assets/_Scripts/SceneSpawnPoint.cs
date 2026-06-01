@@ -4,12 +4,12 @@ public sealed class SceneSpawnPoint : MonoBehaviour
 {
     [SerializeField] private string spawnId = "Area2PlayerSpawn";
     [SerializeField] private bool overridePlayerFacingScales;
-    [SerializeField] private Vector3 rightFacingScale = new Vector3(0.7f, 0.7f, 1f);
-    [SerializeField] private Vector3 leftFacingScale = new Vector3(-0.7f, 0.7f, 1f);
+    [SerializeField] private Vector3 rightFacingScale = new Vector3(0.8f, 0.8f, 1f);
+    [SerializeField] private Vector3 leftFacingScale = new Vector3(-0.8f, 0.8f, 1f);
     [SerializeField] private bool faceRightOnSpawn = true;
     [SerializeField] private bool overridePlayerMovement;
-    [SerializeField] private float playerSpeed = 2f;
-    [SerializeField] private float playerJumpForce = 3.75f;
+    [SerializeField] private float playerSpeed = 2.25f;
+    [SerializeField] private float playerJumpForce = 4.25f;
     [SerializeField] private bool overridePlayerSortingOrder;
     [SerializeField] private int playerSortingOrder = 100;
     [SerializeField] private bool overrideCameraOrthographicSize;
