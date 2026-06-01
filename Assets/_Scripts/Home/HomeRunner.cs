@@ -73,6 +73,6 @@ public class HomeRunner : MonoBehaviour
     /// </summary>
     public void StartGame()
     {
-        SceneManager.LoadScene("Starting Area");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Starting Area");
     }
 }
