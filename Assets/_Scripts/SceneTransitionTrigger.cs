@@ -38,6 +38,7 @@ public sealed class SceneTransitionTrigger : MonoBehaviour
         }
 
         hasTriggered = true;
+        Debug.Log($"Transition triggered: {gameObject.name} -> {targetSceneName} / {targetSpawnId}");
         SceneTransitionManager.Instance.TransitionToScene(targetSceneName, targetSpawnId, player);
     }
 }
