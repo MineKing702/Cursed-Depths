@@ -24,8 +24,7 @@ public sealed class EnemyController : MonoBehaviour
     [SerializeField] private float fleeSpeed = 4f;
     [SerializeField] private bool lockRotation = true;
     [SerializeField] private Transform[] patrolPoints = Array.Empty<Transform>();
-    [SerializeField] private Vector3 rightFacingScale = new Vector3(1.4f, 1.4f, 1f);
-    [SerializeField] private Vector3 leftFacingScale = new Vector3(-1.4f, 1.4f, 1f);
+    [SerializeField] private bool spriteFacesRightByDefault = true;
     [SerializeField] private bool startPatrolling = true;
 
     [Header("Ledge Detection")]
@@ -101,6 +100,7 @@ public sealed class EnemyController : MonoBehaviour
     private Coroutine attackRoutine;
     private bool missingPlayerWarningLogged;
     private bool missingTargetHealthWarningLogged;
+    private Vector3 baseScale;
 
     /// <summary>
     /// Gets the enemy's current AI state for UI, debugging, or external systems.
@@ -113,6 +113,7 @@ public sealed class EnemyController : MonoBehaviour
         enemyAnimator = GetComponent<Animator>();
         enemyColliders = GetComponentsInChildren<Collider2D>();
         lockedRotation = enemyRigidbody.rotation;
+        CacheBaseScale();
 
         if (lockRotation)
         {
@@ -827,21 +828,34 @@ public sealed class EnemyController : MonoBehaviour
         enemyRigidbody.SetRotation(lockedRotation);
     }
 
+    private void CacheBaseScale()
+    {
+        baseScale = transform.localScale;
+        baseScale.x = Mathf.Abs(baseScale.x);
+    }
+
     private void FaceDirection(float direction)
     {
         if (direction > Mathf.Epsilon)
         {
-            transform.localScale = rightFacingScale;
+            SetFacingDirection(true);
         }
         else if (direction < -Mathf.Epsilon)
         {
-            transform.localScale = leftFacingScale;
+            SetFacingDirection(false);
         }
+    }
+
+    private void SetFacingDirection(bool facingRight)
+    {
+        float xSign = facingRight == spriteFacesRightByDefault ? 1f : -1f;
+        transform.localScale = new Vector3(baseScale.x * xSign, baseScale.y, baseScale.z);
     }
 
     private float GetFacingSign()
     {
-        return Mathf.Sign(transform.localScale.x == 0f ? rightFacingScale.x : transform.localScale.x);
+        float xSign = transform.localScale.x >= 0f ? 1f : -1f;
+        return spriteFacesRightByDefault ? xSign : -xSign;
     }
 
     private void AdvancePatrolPoint()
