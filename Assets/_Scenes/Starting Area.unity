@@ -299235,7 +299235,7 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 66b24d580e21ef641af784cb15089f22, type: 3}
---- !u!1001 &2992344084623513635
+--- !u!1001 &3049591149303166164
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -299243,57 +299243,57 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 484470321159607229, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
-      propertyPath: m_Name
-      value: Skeleton
-      objectReference: {fileID: 0}
-    - target: {fileID: 1189015248100668660, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
-      propertyPath: 'patrolPoints.Array.data[0]'
-      value: 
-      objectReference: {fileID: 837997883}
-    - target: {fileID: 1189015248100668660, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
-      propertyPath: 'patrolPoints.Array.data[1]'
-      value: 
-      objectReference: {fileID: 384894441}
-    - target: {fileID: 3089542449636831170, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
+    - target: {fileID: 97793028188401558, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 6.6
       objectReference: {fileID: 0}
-    - target: {fileID: 3089542449636831170, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
+    - target: {fileID: 97793028188401558, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
       propertyPath: m_LocalPosition.y
       value: -3.374
       objectReference: {fileID: 0}
-    - target: {fileID: 3089542449636831170, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
+    - target: {fileID: 97793028188401558, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3089542449636831170, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
+    - target: {fileID: 97793028188401558, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3089542449636831170, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
+    - target: {fileID: 97793028188401558, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
       propertyPath: m_LocalRotation.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3089542449636831170, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
+    - target: {fileID: 97793028188401558, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
       propertyPath: m_LocalRotation.y
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 3089542449636831170, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
+    - target: {fileID: 97793028188401558, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
       propertyPath: m_LocalRotation.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3089542449636831170, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
+    - target: {fileID: 97793028188401558, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3089542449636831170, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
+    - target: {fileID: 97793028188401558, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 180
       objectReference: {fileID: 0}
-    - target: {fileID: 3089542449636831170, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
+    - target: {fileID: 97793028188401558, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5807384085514872461, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
+      propertyPath: 'patrolPoints.Array.data[0]'
+      value: 
+      objectReference: {fileID: 837997883}
+    - target: {fileID: 5807384085514872461, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
+      propertyPath: 'patrolPoints.Array.data[1]'
+      value: 
+      objectReference: {fileID: 384894441}
+    - target: {fileID: 6893385166298156613, guid: 9f17596264235bb48840c77f2be489f3, type: 3}
+      propertyPath: m_Name
+      value: Skeleton
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -299376,5 +299376,5 @@ SceneRoots:
   - {fileID: 1266407867}
   - {fileID: 404554352}
   - {fileID: 964484028}
-  - {fileID: 2992344084623513635}
+  - {fileID: 3049591149303166164}
   - {fileID: 90011612}
