@@ -209,8 +209,7 @@ MonoBehaviour:
   patrolPoints:
   - {fileID: 0}
   - {fileID: 0}
-  rightFacingScale: {x: -3.18, y: 3.18, z: 1}
-  leftFacingScale: {x: 3.18, y: 3.18, z: 1}
+  spriteFacesRightByDefault: 0
   startPatrolling: 1
   avoidLedges: 1
   groundLayer:
