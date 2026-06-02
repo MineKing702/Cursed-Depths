@@ -135263,6 +135263,9 @@ PrefabInstance:
       addedObject: {fileID: 1244034148}
     - targetCorrespondingSourceObject: {fileID: 1689866831511430, guid: 2e2183501755a214591e802f3aff33d2, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 900000011}
+    - targetCorrespondingSourceObject: {fileID: 1689866831511430, guid: 2e2183501755a214591e802f3aff33d2, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 1244034149}
   m_SourcePrefab: {fileID: 100100000, guid: 2e2183501755a214591e802f3aff33d2, type: 3}
 --- !u!1 &964595565
@@ -185303,7 +185306,7 @@ GameObject:
   - component: {fileID: 1318517881}
   - component: {fileID: 1318517882}
   m_Layer: 0
-  m_Name: Next Area Hole
+  m_Name: Transition - Starting Area to Area 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -185442,7 +185445,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneTransitionTrigger
   targetSceneName: Area2
-  targetSpawnId: Area2PlayerSpawn
+  targetSpawnId: Area2SpawnFromStartingArea
   triggerOnce: 1
 --- !u!1 &1319184274
 GameObject:
@@ -250885,6 +250888,7 @@ GameObject:
   - component: {fileID: 1806250763}
   - component: {fileID: 1806250765}
   - component: {fileID: 1806250766}
+  - component: {fileID: 900000010}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -299378,3 +299382,86 @@ SceneRoots:
   - {fileID: 964484028}
   - {fileID: 3049591149303166164}
   - {fileID: 90011612}
+  - {fileID: 900000001}
+--- !u!1 &900000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 900000002}
+  - component: {fileID: 900000003}
+  m_Layer: 0
+  m_Name: Spawn - From Area 2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &900000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 900000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 8.5, y: -4.6, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &900000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 900000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 205443334d9249aab40d8f2b72080079, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneSpawnPoint
+  spawnId: StartingAreaSpawnFromArea2
+  overridePlayerFacingScales: 0
+  rightFacingScale: {x: 0.8, y: 0.8, z: 1}
+  leftFacingScale: {x: -0.8, y: 0.8, z: 1}
+  faceRightOnSpawn: 1
+  overridePlayerMovement: 0
+  playerSpeed: 2.25
+  playerJumpForce: 4.25
+  overridePlayerSortingOrder: 0
+  playerSortingOrder: 100
+  overrideCameraOrthographicSize: 0
+  cameraOrthographicSize: 3.5
+--- !u!114 &900000010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1806250760}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bc842f05e5c4c04a97cabd2f8119d01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
+  hasBossKey: 0
+--- !u!114 &900000011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1244034141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bc842f05e5c4c04a97cabd2f8119d01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
+  hasBossKey: 0
