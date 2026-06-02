@@ -14,5 +14,17 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Scenes/Area2.unity
     guid: a1ca6a8f3daabdc4da0d52f45fe1188b
+  - enabled: 1
+    path: Assets/_Scenes/Aura Area.unity
+    guid: c65e27b42fd99a443a966f5e42f2b20f
+  - enabled: 1
+    path: Assets/_Scenes/Puzzle Room.unity
+    guid: 9edd7da16d7d537478e17281ab784722
+  - enabled: 1
+    path: Assets/_Scenes/Boss Door.unity
+    guid: c81822d732fe1a142ab1a4dd4161c4a3
+  - enabled: 1
+    path: Assets/_Scenes/Boss Battle.unity
+    guid: 88f05f20881d68149b5a05d7b35475e4
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
