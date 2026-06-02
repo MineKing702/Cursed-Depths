@@ -91,7 +91,7 @@ public sealed class SceneTransitionManager : MonoBehaviour
 
         if (player != null)
         {
-            SceneSpawnPoint spawnPoint = MovePlayerToSpawn(player, targetSpawnId);
+            SceneSpawnPoint spawnPoint = MovePlayerToSpawn(player, targetSpawnId, targetSceneName);
             ReconnectCameraToPlayer(player.transform, spawnPoint);
         }
 
@@ -105,14 +105,15 @@ public sealed class SceneTransitionManager : MonoBehaviour
         isTransitioning = false;
     }
 
-    private SceneSpawnPoint MovePlayerToSpawn(PlayerController player, string targetSpawnId)
+    private SceneSpawnPoint MovePlayerToSpawn(PlayerController player, string targetSpawnId, string targetSceneName)
     {
+        Debug.Log($"Looking for spawn point: {targetSpawnId} in scene {targetSceneName}");
         Transform spawnTransform = FindSpawnTransform(targetSpawnId);
         SceneSpawnPoint spawnPoint = spawnTransform != null ? spawnTransform.GetComponent<SceneSpawnPoint>() : null;
 
         if (spawnTransform == null)
         {
-            Debug.LogWarning($"Scene transition could not find spawn point '{targetSpawnId}'. Player was left at the loaded scene origin fallback.", this);
+            Debug.LogError($"Missing SceneSpawnPoint with spawnId '{targetSpawnId}' in scene '{targetSceneName}'.", this);
             player.transform.position = Vector3.zero;
         }
         else

@@ -54,6 +54,12 @@ public sealed class PlayerController : MonoBehaviour
 
     private float horizontalInput;
     private float maxFallSpeed;
+    private float baseSpeed;
+    private float baseJumpForce;
+    private float moveSpeedMultiplier = 1f;
+    private float jumpForceMultiplier = 1f;
+    private float sceneScaleMultiplier = 1f;
+    private bool movementBaseInitialized;
     private float currentFacingDirection = 1f;
     private bool isTouchingLadder;
     private bool isClimbing;
@@ -120,6 +126,12 @@ public sealed class PlayerController : MonoBehaviour
         climbSpeed = Mathf.Max(0f, climbSpeed);
         respawnDelay = Mathf.Max(0f, respawnDelay);
         deathSmokeParticleCount = Mathf.Max(0, deathSmokeParticleCount);
+        InitializeMovementBase();
+
+        if (GetComponent<PlayerSceneScaleModifier>() == null)
+        {
+            gameObject.AddComponent<PlayerSceneScaleModifier>();
+        }
 
         SettingsManager settingsManager = SettingsManager.Instance;
         if (settingsManager != null)
@@ -384,13 +396,67 @@ public sealed class PlayerController : MonoBehaviour
         rightFacingScale = rightScale;
         leftFacingScale = leftScale;
         currentFacingDirection = faceRight ? 1f : -1f;
-        transform.localScale = faceRight ? rightFacingScale : leftFacingScale;
+        ApplyCurrentFacingScale();
     }
 
     public void SetMovementSettings(float newSpeed, float newJumpForce)
     {
-        speed = Mathf.Max(0f, newSpeed);
-        jumpForce = Mathf.Max(0f, newJumpForce);
+        baseSpeed = Mathf.Max(0f, newSpeed);
+        baseJumpForce = Mathf.Max(0f, newJumpForce);
+        movementBaseInitialized = true;
+        ApplyMovementTuning();
+    }
+
+    public void ApplyMovementMultiplier(float speedMultiplier, float jumpMultiplier)
+    {
+        InitializeMovementBase();
+
+        moveSpeedMultiplier = Mathf.Max(0f, speedMultiplier);
+        jumpForceMultiplier = Mathf.Max(0f, jumpMultiplier);
+        ApplyMovementTuning();
+    }
+
+    public void ResetMovementTuning()
+    {
+        InitializeMovementBase();
+
+        moveSpeedMultiplier = 1f;
+        jumpForceMultiplier = 1f;
+        ApplyMovementTuning();
+    }
+
+    public void SetSceneScaleMultiplier(float scaleMultiplier)
+    {
+        sceneScaleMultiplier = Mathf.Max(0f, scaleMultiplier);
+        ApplyCurrentFacingScale();
+    }
+
+    public void ResetSceneScaleMultiplier()
+    {
+        sceneScaleMultiplier = 1f;
+        ApplyCurrentFacingScale();
+    }
+
+    private void InitializeMovementBase()
+    {
+        if (movementBaseInitialized)
+        {
+            return;
+        }
+
+        speed = Mathf.Max(0f, speed);
+        jumpForce = Mathf.Max(0f, jumpForce);
+        baseSpeed = speed;
+        baseJumpForce = jumpForce;
+        movementBaseInitialized = true;
+    }
+
+    private void ApplyMovementTuning()
+    {
+        InitializeMovementBase();
+
+        speed = baseSpeed * moveSpeedMultiplier;
+        jumpForce = baseJumpForce * jumpForceMultiplier;
     }
 
     public void SetSpriteSortingOrder(int sortingOrder)
@@ -573,13 +639,18 @@ public sealed class PlayerController : MonoBehaviour
         if (input > 0f)
         {
             currentFacingDirection = 1f;
-            transform.localScale = rightFacingScale;
+            ApplyCurrentFacingScale();
         }
         else if (input < 0f)
         {
             currentFacingDirection = -1f;
-            transform.localScale = leftFacingScale;
+            ApplyCurrentFacingScale();
         }
+    }
+
+    private void ApplyCurrentFacingScale()
+    {
+        transform.localScale = (currentFacingDirection >= 0f ? rightFacingScale : leftFacingScale) * sceneScaleMultiplier;
     }
 
     public void TakeDamage(int damage)

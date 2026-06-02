@@ -8146,7 +8146,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
@@ -19959,8 +19959,9 @@ GameObject:
   - component: {fileID: 1341407364}
   - component: {fileID: 1341407363}
   - component: {fileID: 1341407362}
+  - component: {fileID: 1341407365}
   m_Layer: 0
-  m_Name: Area2/BossDoor
+  m_Name: Transition - Area 2 to Boss Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22985,7 +22986,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7fb95aef72db4ff7ba13ea70c8b60a91, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
   playerTarget: {fileID: 0}
   useTargetCoordinateForPosition: 0
@@ -25743,8 +25744,9 @@ GameObject:
   - component: {fileID: 1730761675}
   - component: {fileID: 1730761674}
   - component: {fileID: 1730761673}
+  - component: {fileID: 1730761676}
   m_Layer: 0
-  m_Name: To Puzzle Room
+  m_Name: Transition - Area 2 to Puzzle Room
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32503,7 +32505,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 205443334d9249aab40d8f2b72080079, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::SceneSpawnPoint
   spawnId: Area2PlayerSpawn
   overridePlayerFacingScales: 1
@@ -32542,7 +32544,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb779451f04ff3b4a9ce677353e887d3, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
   maxHealth: 15
   destroyDelay: 0.75
@@ -32665,7 +32667,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7fb95aef72db4ff7ba13ea70c8b60a91, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
   playerTarget: {fileID: 0}
   useTargetCoordinateForPosition: 0
@@ -32786,6 +32788,148 @@ CapsuleCollider2D:
   m_Offset: {x: 0.04063629, y: 0.0028240231}
   m_Size: {x: 0.34757394, y: 0.52821434}
   m_Direction: 0
+--- !u!114 &1341407365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1341407361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 950399c8aa4446d883b8ee671cdf7476, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::SceneTransitionTrigger
+  targetSceneName: Boss Door
+  targetSpawnId: BossDoorSpawnFromArea2
+  triggerOnce: 1
+--- !u!114 &1730761676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1730761672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 950399c8aa4446d883b8ee671cdf7476, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::SceneTransitionTrigger
+  targetSceneName: Puzzle Room
+  targetSpawnId: PuzzleRoomSpawnFromArea2
+  triggerOnce: 1
+--- !u!1 &2147100000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2147100001}
+  - component: {fileID: 2147100002}
+  m_Layer: 0
+  m_Name: Spawn - From Puzzle Room
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2147100001
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2147100000}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.12, y: -3.52622, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2147100002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2147100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 205443334d9249aab40d8f2b72080079, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::SceneSpawnPoint
+  spawnId: Area2SpawnFromPuzzleRoom
+  overridePlayerFacingScales: 1
+  rightFacingScale: {x: 0.8, y: 0.8, z: 1}
+  leftFacingScale: {x: -0.8, y: 0.8, z: 1}
+  faceRightOnSpawn: 1
+  overridePlayerMovement: 1
+  playerSpeed: 2.25
+  playerJumpForce: 4.25
+  overridePlayerSortingOrder: 1
+  playerSortingOrder: 100
+  overrideCameraOrthographicSize: 1
+  cameraOrthographicSize: 3.5
+--- !u!1 &2147200000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2147200001}
+  - component: {fileID: 2147200002}
+  m_Layer: 0
+  m_Name: Spawn - From Boss Door
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2147200001
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2147200000}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 24.91, y: -6.32, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2147200002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2147200000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 205443334d9249aab40d8f2b72080079, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::SceneSpawnPoint
+  spawnId: Area2SpawnFromBossDoor
+  overridePlayerFacingScales: 1
+  rightFacingScale: {x: 0.8, y: 0.8, z: 1}
+  leftFacingScale: {x: -0.8, y: 0.8, z: 1}
+  faceRightOnSpawn: 1
+  overridePlayerMovement: 1
+  playerSpeed: 2.25
+  playerJumpForce: 4.25
+  overridePlayerSortingOrder: 1
+  playerSortingOrder: 100
+  overrideCameraOrthographicSize: 1
+  cameraOrthographicSize: 3.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -32814,3 +32958,5 @@ SceneRoots:
   - {fileID: 2122278875}
   - {fileID: 1730761675}
   - {fileID: 1341407364}
+  - {fileID: 2147100001}
+  - {fileID: 2147200001}
